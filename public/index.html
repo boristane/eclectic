@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>sup dude</div>
+    <button id="but">show fav artists</button>
+    <a href="/login">login with spotify</a>
+    <script>
+      const button = document.getElementById("but");
+      button.addEventListener("click", e => {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const state = params.get("state");
+        fetch(`/get-token/?code=${code}&state=${state}`)
+          .then(res => res.json())
+          .then(data => {
+            const { access_token: token } = data;
+            fetch(`/top-artists/?token=${token}`)
+              .then(res => res.json())
+              .then(data => console.log(data));
+          });
+      });
+    </script>
+  </body>
+</html>
