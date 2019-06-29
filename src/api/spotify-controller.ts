@@ -2,8 +2,11 @@ import { generateRandomString } from "../utils";
 import { Request, Response } from "express";
 import qs from "qs";
 import axios from "axios";
+import { IArtist } from "../types";
 
 require("dotenv").config();
+
+const axiosInstance = axios.create({ baseURL: "https://api.spotify.com/v1" });
 
 const clientId = process.env["SPOTIFY_CLIENT_ID"];
 const clientSecret = process.env["SPOTIFY_CLIENT_SECRET"];
@@ -89,16 +92,109 @@ export async function refreshToken(req: Request, res: Response) {
   }
 }
 
-export async function getTopArtists(req: Request, res: Response) {
+export async function doIt(req: Request, res: Response) {
   const { token } = req.query;
   try {
-    const response = await axios.get("https://api.spotify.com/v1/me/top/artists", {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const topArtists: IArtist[] = (await getTopArtists(token)).items;
+    const popularities: number[] = topArtists.map(artist => artist.popularity);
+    const [minPopularity, maxPopularity] = [Math.min(...popularities), Math.max(...popularities)];
+    const meanPopularity = popularities.reduce((acc, c) => acc + c) / popularities.length;
+    const minPopularArtist = topArtists.find(artist => artist.popularity === minPopularity);
+    const maxPopularArtist = topArtists.find(artist => artist.popularity === maxPopularity);
+    const genreClusters = clusterGenres(topArtists);
+    const connections = await findConnections(token, topArtists);
+    const topTracks = (await getTopTracks(token)).items;
+    const explicit = getExplicit(topTracks);
+    res.status(200).json({
+      genreClusters,
+      topArtists,
+      connections,
+      topTracks,
+      explicit,
+      popularity: {
+        meanPopularity,
+        minPopularArtist,
+        maxPopularArtist
       }
     });
-    res.status(200).json(response.data);
-  } catch {
-    res.status(500).json({ error: "Unexpected error." });
+  } catch (err) {
+    res.status(500).json({ error: "Unexpected error.", err: err.stack });
   }
+}
+
+async function getTopArtists(token: string) {
+  const response = await axiosInstance.get("/me/top/artists", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data;
+}
+
+async function getTopTracks(token: string) {
+  const response = await axiosInstance.get("/me/top/tracks", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data;
+}
+
+async function getConnections(token: string, artist: IArtist) {
+  const response = await axiosInstance.get(`/artists/${artist.id}/related-artists`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return { artist, connections: response.data.artists };
+}
+
+async function findConnections(
+  token: string,
+  artists: IArtist[]
+): Promise<{ artist: string; connections: string[] }[]> {
+  const connections = [];
+  const artistsIDs = artists.map(artist => artist.id);
+  const promises = artists.map(artist => getConnections(token, artist));
+  await Promise.all(promises).then(reloves => {
+    reloves.forEach(resolve => {
+      const relatedArtists = resolve.connections;
+      const relatedArtistsIDs = relatedArtists.map(artist => artist.id);
+      const commonIDs = artistsIDs.filter(value => relatedArtistsIDs.includes(value));
+      if (commonIDs.length > 0) {
+        const commonArtistNames = commonIDs.map(
+          id => artists.find(artist => artist.id === id).name
+        );
+        connections.push({ artist: resolve.artist.name, connections: commonArtistNames });
+      }
+    });
+  });
+  return connections;
+}
+
+function clusterGenres(artists: IArtist[]): { genre: string; count: number; artists: string[] }[] {
+  const cluster: { genre: string; count: number; artists: string[] }[] = [];
+  artists.forEach(artist => {
+    const genres = artist.genres;
+    genres.forEach(genre => {
+      const g = cluster.find(c => c.genre === genre);
+      if (g === undefined) {
+        cluster.push({
+          genre,
+          count: 1,
+          artists: [artist.name]
+        });
+      } else {
+        g.count += 1;
+        g.artists.push(artist.name);
+      }
+    });
+  });
+  return cluster;
+}
+
+function getExplicit(tracks: any[]): { explicit: number; total: number } {
+  const total = tracks.length;
+  const explicit = tracks.filter(track => track.explicit).length;
+  return { explicit, total };
 }

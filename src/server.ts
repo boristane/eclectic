@@ -1,6 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import { login, getToken, getTopArtists, refreshToken } from "./api/spotify-controller";
+import { login, getToken, doIt, refreshToken } from "./api/spotify-controller";
 
 const app = express()
   .use(express.static(__dirname + "/../public"))
@@ -23,6 +23,6 @@ app.use((req, res, next) => {
 app.get("/login", login);
 app.get("/get-token", getToken);
 app.get("/refresh-token", refreshToken);
-app.get("/top-artists", getTopArtists);
+app.get("/top-artists", doIt);
 
 export default app;
