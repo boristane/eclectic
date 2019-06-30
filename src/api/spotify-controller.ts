@@ -97,10 +97,13 @@ export async function doIt(req: Request, res: Response) {
   try {
     const topArtists: IArtist[] = (await getTopArtists(token)).items;
     const popularities: number[] = topArtists.map(artist => artist.popularity);
-    const [minPopularity, maxPopularity] = [Math.min(...popularities), Math.max(...popularities)];
     const meanPopularity = popularities.reduce((acc, c) => acc + c) / popularities.length;
-    const minPopularArtist = topArtists.find(artist => artist.popularity === minPopularity);
-    const maxPopularArtist = topArtists.find(artist => artist.popularity === maxPopularity);
+    const minPopularArtist = topArtists.find(
+      artist => artist.popularity === Math.min(...popularities)
+    );
+    const maxPopularArtist = topArtists.find(
+      artist => artist.popularity === Math.max(...popularities)
+    );
     const genreClusters = clusterGenres(topArtists);
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;

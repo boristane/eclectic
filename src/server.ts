@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import { login, getToken, doIt, refreshToken } from "./api/spotify-controller";
 
 const app = express()
-  .use(express.static(__dirname + "/../public"))
+  .use(express.static(__dirname + "/../dist"))
   .use(express.json())
   .use(cookieParser());
 
