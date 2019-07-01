@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css?family=Dosis&display=swap");
+
+body {
+  margin: 0;
+}
+
+.container {
+  background-image: linear-gradient(to bottom right, #3edce5, #1db954);
+}
+.artists {
+  stroke: white;
+  stroke-width: 5px;
+}
+.artists:hover {
+  cursor: pointer;
+}
+text {
+  font-family: "Dosis", sans-serif;
+}

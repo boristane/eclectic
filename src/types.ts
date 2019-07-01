@@ -19,3 +19,24 @@ export interface IArtist {
   type: string;
   uri: string;
 }
+
+export interface IMargin {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+export interface IArtistsListProps {
+  width: number;
+  height: number;
+  margin: IMargin;
+  data: IArtistListDataItem[];
+}
+
+export interface IArtistListDataItem {
+  name: string;
+  rank: number;
+  image: string;
+  id: string;
+}
