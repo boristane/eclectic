@@ -39,4 +39,5 @@ export interface IArtistListDataItem {
   rank: number;
   image: string;
   id: string;
+  topTracks: any;
 }

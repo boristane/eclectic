@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import qs from "qs";
 import axios from "axios";
 import { IArtist } from "../types";
+import { async } from "q";
 
 require("dotenv").config();
 
@@ -96,6 +97,12 @@ export async function doIt(req: Request, res: Response) {
   const { token } = req.query;
   try {
     const topArtists: IArtist[] = (await getTopArtists(token)).items;
+    const artistsTopTracks = [];
+    for (let i = 0; i < topArtists.length; i += 1) {
+      const artist = topArtists[i];
+      const tracks = (await getArtistTopTracks(token, artist.id)).tracks;
+      artistsTopTracks.push({ artistID: artist.id, tracks });
+    }
     const popularities: number[] = topArtists.map(artist => artist.popularity);
     const meanPopularity = popularities.reduce((acc, c) => acc + c) / popularities.length;
     const minPopularArtist = topArtists.find(
@@ -114,6 +121,7 @@ export async function doIt(req: Request, res: Response) {
       connections,
       topTracks,
       explicit,
+      artistsTopTracks,
       popularity: {
         meanPopularity,
         minPopularArtist,
@@ -127,6 +135,15 @@ export async function doIt(req: Request, res: Response) {
 
 async function getTopArtists(token: string) {
   const response = await axiosInstance.get("/me/top/artists", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data;
+}
+
+async function getArtistTopTracks(token: string, artistID: string) {
+  const response = await axiosInstance.get(`/artists/${artistID}/top-tracks?country=GB`, {
     headers: {
       Authorization: `Bearer ${token}`
     }

@@ -39,14 +39,17 @@ const main = () => {
           .then(res => res.json())
           .then(data => {
             console.log(data);
+            const { artistsTopTracks } = data;
             const topArtistsData: IArtistListDataItem[] = data.topArtists
               .map((artist, index) => ({
                 name: artist.name,
                 rank: index + 1,
                 image: artist.images[0].url,
-                id: artist.id
+                id: artist.id,
+                topTracks: artistsTopTracks.find(a => a.artistID === artist.id).tracks
               }))
               .filter(artist => artist.rank <= 10);
+            console.log(topArtistsData);
             verticalBarDemo(topArtistsData);
           });
       });

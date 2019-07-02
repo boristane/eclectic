@@ -13,6 +13,7 @@ export default class ArtistList {
   private chartHeight: number;
   private chartWidth: number;
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
+  private playButtons;
 
   constructor(properties: IArtistsListProps) {
     this.width = properties.width;
@@ -61,10 +62,17 @@ export default class ArtistList {
   ) {
     const circle = circles[index];
     d3.select(circle)
+      .select(".artists")
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
       .style("stroke", "#4ef087");
+    d3.select(circle)
+      .select(".play-button")
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .style("fill", "#4ef087");
   }
 
   private handleMouseOut(
@@ -74,23 +82,63 @@ export default class ArtistList {
   ) {
     const circle = circles[index];
     d3.select(circle)
+      .select(".artists")
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
       .style("stroke", "white");
+    d3.select(circle)
+      .select(".play-button")
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .style("fill", "white");
+  }
+
+  private playOrPause(url: string, isPlaying: boolean) {
+    const sourceElt = document.getElementsByTagName("source")[0];
+    const oldUrl = sourceElt.src;
+    sourceElt.src = url;
+    const audioElt = document.getElementById("player") as HTMLAudioElement;
+    if (isPlaying) {
+      audioElt.pause();
+    } else {
+      audioElt.play();
+    }
+  }
+
+  private handleClick(
+    d: IArtistListDataItem,
+    index: number,
+    circles: Selection<any, any, any, any>
+  ) {
+    for (let i = 0; i < this.data.length; i += 1) {
+      if (i === index) {
+        continue;
+      }
+      d3.select(circles[i])
+        .select(".play-button")
+        .text(d => "▶");
+    }
+    const circle = circles[index];
+    const textNode = d3.select(circle).select(".play-button");
+    const textValue = textNode.text();
+    const newTextValue = textValue === "▶" ? "| |" : "▶";
+    textNode.text(d => newTextValue);
+    this.playOrPause(d.topTracks[0].preview_url, newTextValue === "▶");
   }
 
   private generateArtists(): void {
     const radius = this.chartWidth / (2 * this.data.length) - this.margin.left;
     const fontSize = radius / 4;
-    const circles = this.svg
+    let circlesGroup = this.svg
       .select(".chart-group")
       .selectAll(".artist")
       .data(this.data);
 
     const nameTexts = this.svg
       .select(".chart-group")
-      .selectAll(".value")
+      .selectAll(".artist-name")
       .data(this.data);
 
     const fillImages = this.svg
@@ -110,14 +158,21 @@ export default class ArtistList {
       .attr("height", 1)
       .attr("patternUnits", "objectBoundingBox")
       .append("image")
+      .classed(".image-fill", true)
       .attr("x", 0)
       .attr("y", 0)
       .attr("width", 2 * radius)
       .attr("height", 2 * radius)
       .attr("xlink:href", d => d.image);
 
-    circles
+    circlesGroup = circlesGroup
       .enter()
+      .append("g")
+      .on("mouseout", this.handleMouseOut.bind(this))
+      .on("mouseover", this.handleMouseOver.bind(this))
+      .on("click", this.handleClick.bind(this));
+
+    circlesGroup
       .append("circle")
       .attr("r", radius)
       .attr("cx", xPos)
@@ -125,9 +180,7 @@ export default class ArtistList {
       .style("fill", img_url)
       .style("stroke", "white")
       .style("stroke-width", fontSize / 4)
-      .classed("artists", true)
-      .on("mouseover", this.handleMouseOver.bind(this))
-      .on("mouseout", this.handleMouseOut.bind(this));
+      .classed("artists", true);
 
     nameTexts
       .enter()
@@ -140,7 +193,21 @@ export default class ArtistList {
       .style("font-size", () => `${fontSize}px`)
       .attr("fill", "white")
       .style("font-weight", "bold")
-      .classed("name", true);
+      .classed("artist-name", true);
+
+    circlesGroup
+      .append("text")
+      .attr("x", xPos)
+      .attr("y", this.chartHeight / 2)
+      .text(d => "▶")
+      .style("text-anchor", "middle")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${2 * fontSize}px`)
+      .style("opacity", 0.5)
+      .style("cursor", "pointer")
+      .attr("fill", "white")
+      .style("font-weight", "bold")
+      .classed("play-button", true);
   }
 
   private generateLabels() {
