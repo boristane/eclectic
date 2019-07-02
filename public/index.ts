@@ -46,7 +46,7 @@ const main = () => {
                 rank: index + 1,
                 image: artist.images[0].url,
                 id: artist.id,
-                topTracks: artistsTopTracks.find(a => a.artistID === artist.id).tracks
+                track: artistsTopTracks.find(a => a.artistID === artist.id).track
               }))
               .filter(artist => artist.rank <= 10);
             console.log(topArtistsData);

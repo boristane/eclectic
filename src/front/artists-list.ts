@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import { IArtistListDataItem, IArtistsListProps, IMargin } from "../types";
 
 import { Selection } from "d3";
+import colors from "../colors";
 
 export default class ArtistList {
   width: number;
@@ -13,7 +14,6 @@ export default class ArtistList {
   private chartHeight: number;
   private chartWidth: number;
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
-  private playButtons;
 
   constructor(properties: IArtistsListProps) {
     this.width = properties.width;
@@ -66,13 +66,13 @@ export default class ArtistList {
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
-      .style("stroke", "#4ef087");
+      .style("stroke", colors.spotifyGreen);
     d3.select(circle)
       .select(".play-button")
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
-      .style("fill", "#4ef087");
+      .style("fill", colors.spotifyGreen);
   }
 
   private handleMouseOut(
@@ -96,10 +96,8 @@ export default class ArtistList {
   }
 
   private playOrPause(url: string, isPlaying: boolean) {
-    const sourceElt = document.getElementsByTagName("source")[0];
-    const oldUrl = sourceElt.src;
-    sourceElt.src = url;
     const audioElt = document.getElementById("player") as HTMLAudioElement;
+    audioElt.src = url;
     if (isPlaying) {
       audioElt.pause();
     } else {
@@ -125,7 +123,7 @@ export default class ArtistList {
     const textValue = textNode.text();
     const newTextValue = textValue === "▶" ? "| |" : "▶";
     textNode.text(d => newTextValue);
-    this.playOrPause(d.topTracks[0].preview_url, newTextValue === "▶");
+    this.playOrPause(d.track.preview_url, newTextValue === "▶");
   }
 
   private generateArtists(): void {

@@ -101,7 +101,8 @@ export async function doIt(req: Request, res: Response) {
     for (let i = 0; i < topArtists.length; i += 1) {
       const artist = topArtists[i];
       const tracks = (await getArtistTopTracks(token, artist.id)).tracks;
-      artistsTopTracks.push({ artistID: artist.id, tracks });
+      const track = tracks[Math.floor(Math.random() * tracks.length)];
+      artistsTopTracks.push({ artistID: artist.id, track });
     }
     const popularities: number[] = topArtists.map(artist => artist.popularity);
     const meanPopularity = popularities.reduce((acc, c) => acc + c) / popularities.length;
