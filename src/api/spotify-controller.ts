@@ -2,8 +2,7 @@ import { generateRandomString } from "../utils";
 import { Request, Response } from "express";
 import qs from "qs";
 import axios from "axios";
-import { IArtist } from "../types";
-import { async } from "q";
+import { IArtist, IArtistListDataItem } from "../types";
 
 require("dotenv").config();
 
@@ -96,14 +95,7 @@ export async function refreshToken(req: Request, res: Response) {
 export async function doIt(req: Request, res: Response) {
   const { token } = req.query;
   try {
-    const topArtists: IArtist[] = (await getTopArtists(token)).items;
-    const artistsTopTracks = [];
-    for (let i = 0; i < topArtists.length; i += 1) {
-      const artist = topArtists[i];
-      const tracks = (await getArtistTopTracks(token, artist.id)).tracks;
-      const track = tracks[Math.floor(Math.random() * tracks.length)];
-      artistsTopTracks.push({ artistID: artist.id, track });
-    }
+    const topArtists: IArtistListDataItem[] = await getTopArtists(token);
     const popularities: number[] = topArtists.map(artist => artist.popularity);
     const meanPopularity = popularities.reduce((acc, c) => acc + c) / popularities.length;
     const minPopularArtist = topArtists.find(
@@ -116,13 +108,13 @@ export async function doIt(req: Request, res: Response) {
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;
     const explicit = getExplicit(topTracks);
+
     res.status(200).json({
       genreClusters,
       topArtists,
       connections,
       topTracks,
       explicit,
-      artistsTopTracks,
       popularity: {
         meanPopularity,
         minPopularArtist,
@@ -140,7 +132,23 @@ async function getTopArtists(token: string) {
       Authorization: `Bearer ${token}`
     }
   });
-  return response.data;
+  const artists: IArtist[] = response.data.items;
+  const artistsTopTracks = [];
+  for (let i = 0; i < artists.length; i += 1) {
+    const artistTopTracks = (await getArtistTopTracks(token, artists[i].id)).tracks;
+    const track = artistTopTracks[Math.floor(Math.random() * artistTopTracks.length)];
+    artistsTopTracks.push({ artistID: artists[i].id, track });
+  }
+  const topArtists: IArtistListDataItem[] = artists.map((artist, index) => ({
+    name: artist.name,
+    rank: index + 1,
+    image: artist.images[0].url,
+    id: artist.id,
+    track: artistsTopTracks.find(a => a.artistID === artist.id).track,
+    popularity: artist.popularity,
+    genres: artist.genres
+  }));
+  return topArtists;
 }
 
 async function getArtistTopTracks(token: string, artistID: string) {
@@ -161,7 +169,7 @@ async function getTopTracks(token: string) {
   return response.data;
 }
 
-async function getConnections(token: string, artist: IArtist) {
+async function getConnections(token: string, artist: IArtistListDataItem) {
   const response = await axiosInstance.get(`/artists/${artist.id}/related-artists`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -172,7 +180,7 @@ async function getConnections(token: string, artist: IArtist) {
 
 async function findConnections(
   token: string,
-  artists: IArtist[]
+  artists: IArtistListDataItem[]
 ): Promise<{ artist: string; connections: string[] }[]> {
   const connections = [];
   const artistsIDs = artists.map(artist => artist.id);
@@ -193,7 +201,9 @@ async function findConnections(
   return connections;
 }
 
-function clusterGenres(artists: IArtist[]): { genre: string; count: number; artists: string[] }[] {
+function clusterGenres(
+  artists: IArtistListDataItem[]
+): { genre: string; count: number; artists: string[] }[] {
   const cluster: { genre: string; count: number; artists: string[] }[] = [];
   artists.forEach(artist => {
     const genres = artist.genres;

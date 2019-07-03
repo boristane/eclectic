@@ -65,6 +65,7 @@ export default class MainstreamMeter {
     circles: Selection<any, any, any, any>
   ) {
     const circle = circles[index];
+    d3.select(circle).raise();
     d3.select(circle)
       .select(".artists")
       .transition()
@@ -150,10 +151,14 @@ export default class MainstreamMeter {
     const img_url = d => `url(#img_mainstream_meter_${d.id})`;
     const xPos = d => this.xScale(d.popularity) - this.radius - this.margin.left;
     const yPos = (d, index) => {
+      // const samePopularity = this.data.filter(el => el.popularity === d.popularity);
+      // const indexInSamePopularty = samePopularity.indexOf(d);
+      // const offset = indexInSamePopularty > 1 ? indexInSamePopularty * (0.9 * this.radius) : 0;
+      const offset = 0;
       if (index % 2) {
-        return this.chartHeight / 2 - 2 * this.radius;
+        return this.chartHeight / 2 - (2 * this.radius + offset);
       }
-      return this.chartHeight / 2 + 2 * this.radius;
+      return this.chartHeight / 2 + (2 * this.radius + offset);
     };
     const textYPos = (d, index) => {
       if (index % 2) {

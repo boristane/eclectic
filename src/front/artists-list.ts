@@ -14,6 +14,8 @@ export default class ArtistList {
   private chartHeight: number;
   private chartWidth: number;
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
+  private radius: number;
+  private fontSize: number;
 
   constructor(properties: IArtistsListProps) {
     this.width = properties.width;
@@ -22,6 +24,8 @@ export default class ArtistList {
     this.data = properties.data;
     this.chartWidth = this.width - this.margin.left - this.margin.right;
     this.chartHeight = this.height - this.margin.top - this.margin.bottom;
+    this.radius = this.chartWidth / (2 * this.data.length) - 2 * this.margin.left;
+    this.fontSize = this.radius / 4;
   }
 
   public make(selector: string): void {
@@ -127,8 +131,6 @@ export default class ArtistList {
   }
 
   private generateArtists(): void {
-    const radius = this.chartWidth / (2 * this.data.length) - 2 * this.margin.left;
-    const fontSize = radius / 4;
     let circlesGroup = this.svg
       .select(".chart-group")
       .selectAll(".artist")
@@ -146,7 +148,7 @@ export default class ArtistList {
 
     const img_id = d => `img_${d.id}`;
     const img_url = d => `url(#img_${d.id})`;
-    const xPos = d => this.xScale(d.rank) - radius - this.margin.left;
+    const xPos = d => this.xScale(d.rank) - this.radius - this.margin.left;
 
     fillImages
       .enter()
@@ -159,8 +161,8 @@ export default class ArtistList {
       .classed(".image-fill", true)
       .attr("x", 0)
       .attr("y", 0)
-      .attr("width", 2 * radius)
-      .attr("height", 2 * radius)
+      .attr("width", 2 * this.radius)
+      .attr("height", 2 * this.radius)
       .attr("xlink:href", d => d.image);
 
     circlesGroup = circlesGroup
@@ -172,23 +174,23 @@ export default class ArtistList {
 
     circlesGroup
       .append("circle")
-      .attr("r", radius)
+      .attr("r", this.radius)
       .attr("cx", xPos)
       .attr("cy", this.chartHeight / 2)
       .style("fill", img_url)
       .style("stroke", "white")
-      .style("stroke-width", fontSize / 4)
+      .style("stroke-width", this.fontSize / 4)
       .classed("artists", true);
 
     nameTexts
       .enter()
       .append("text")
       .attr("x", xPos)
-      .attr("y", this.chartHeight / 2 + radius + 2 * fontSize)
+      .attr("y", this.chartHeight / 2 + this.radius + 2 * this.fontSize)
       .text(d => `#${d.rank} ${d.name}`)
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
-      .style("font-size", () => `${fontSize}px`)
+      .style("font-size", () => `${this.fontSize}px`)
       .attr("fill", "white")
       .style("font-weight", "bold")
       .classed("artist-name", true);
@@ -200,7 +202,7 @@ export default class ArtistList {
       .text(d => "▶")
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
-      .style("font-size", () => `${2 * fontSize}px`)
+      .style("font-size", () => `${2 * this.fontSize}px`)
       .style("opacity", 0.5)
       .style("cursor", "pointer")
       .attr("fill", "white")

@@ -41,4 +41,5 @@ export interface IArtistListDataItem {
   id: string;
   track: any;
   popularity: number;
+  genres: string[];
 }
