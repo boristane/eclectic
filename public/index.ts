@@ -3,18 +3,21 @@ import ArtistList from "../src/front/artists-list";
 import { IMargin, IArtistListDataItem, IArtistsListProps } from "../src/types";
 import MainstreamMeter from "../src/front/mainstream-meter";
 
+const margin: IMargin = {
+  top: 10,
+  bottom: 10,
+  left: 10,
+  right: 10
+};
+const width = document.body.clientWidth - margin.left - margin.right;
+const height = 0.95 * document.documentElement.clientHeight;
+
 function displayTopArtists(data: IArtistListDataItem[]) {
   function main(rawData: IArtistListDataItem[]): void {
-    const margin: IMargin = {
-      top: 10,
-      bottom: 10,
-      left: 10,
-      right: 10
-    };
     const data = rawData;
     const mapProperties: IArtistsListProps = {
-      width: document.body.clientWidth,
-      height: 300,
+      width,
+      height: 0.3 * height,
       margin,
       data
     };
@@ -26,16 +29,10 @@ function displayTopArtists(data: IArtistListDataItem[]) {
 }
 function displayMainstreamMeter(data: IArtistListDataItem[]) {
   function main(rawData: IArtistListDataItem[]): void {
-    const margin: IMargin = {
-      top: 10,
-      bottom: 10,
-      left: 10,
-      right: 10
-    };
     const data = rawData;
     const mapProperties: IArtistsListProps = {
-      width: document.body.clientWidth,
-      height: 300,
+      width: document.body.clientWidth - margin.left - margin.right,
+      height: 0.7 * height,
       margin,
       data
     };

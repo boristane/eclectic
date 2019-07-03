@@ -127,7 +127,7 @@ export default class ArtistList {
   }
 
   private generateArtists(): void {
-    const radius = this.chartWidth / (2 * this.data.length) - this.margin.left;
+    const radius = this.chartWidth / (2 * this.data.length) - 2 * this.margin.left;
     const fontSize = radius / 4;
     let circlesGroup = this.svg
       .select(".chart-group")

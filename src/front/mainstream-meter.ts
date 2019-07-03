@@ -14,6 +14,8 @@ export default class MainstreamMeter {
   private chartHeight: number;
   private chartWidth: number;
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
+  private radius: number;
+  private fontSize: number;
 
   constructor(properties: IArtistsListProps) {
     this.width = properties.width;
@@ -22,6 +24,8 @@ export default class MainstreamMeter {
     this.data = properties.data.sort((a, b) => a.popularity - b.popularity);
     this.chartWidth = this.width - this.margin.left - this.margin.right;
     this.chartHeight = this.height - this.margin.top - this.margin.bottom;
+    this.radius = this.chartWidth / (2 * this.data.length) - this.margin.left;
+    this.fontSize = this.radius / 4;
   }
 
   public make(selector: string): void {
@@ -127,14 +131,12 @@ export default class MainstreamMeter {
   }
 
   private generateMainstreamMeter(): void {
-    const radius = this.chartWidth / (2 * this.data.length) - this.margin.left;
-    const fontSize = radius / 4;
     let circlesGroup = this.svg
       .select(".chart-group")
       .selectAll(".artist")
       .data(this.data);
 
-    const nameTexts = this.svg
+    const popularityTexts = this.svg
       .select(".chart-group")
       .selectAll(".artist-name")
       .data(this.data);
@@ -146,12 +148,18 @@ export default class MainstreamMeter {
 
     const img_id = d => `img_mainstream_meter_${d.id}`;
     const img_url = d => `url(#img_mainstream_meter_${d.id})`;
-    const xPos = d => this.xScale(d.popularity) - radius - this.margin.left;
+    const xPos = d => this.xScale(d.popularity) - this.radius - this.margin.left;
     const yPos = (d, index) => {
       if (index % 2) {
-        return this.chartHeight / 2 - 2 * radius;
+        return this.chartHeight / 2 - 2 * this.radius;
       }
-      return this.chartHeight / 2 + 2 * radius;
+      return this.chartHeight / 2 + 2 * this.radius;
+    };
+    const textYPos = (d, index) => {
+      if (index % 2) {
+        return yPos(d, index) + (this.radius + 2 * this.fontSize);
+      }
+      return yPos(d, index) - (this.radius + 2 * this.fontSize);
     };
 
     fillImages
@@ -165,8 +173,8 @@ export default class MainstreamMeter {
       .classed(".image-fill", true)
       .attr("x", 0)
       .attr("y", 0)
-      .attr("width", 2 * radius)
-      .attr("height", 2 * radius)
+      .attr("width", 2 * this.radius)
+      .attr("height", 2 * this.radius)
       .attr("xlink:href", d => d.image);
 
     circlesGroup = circlesGroup
@@ -178,26 +186,26 @@ export default class MainstreamMeter {
 
     circlesGroup
       .append("circle")
-      .attr("r", radius)
+      .attr("r", this.radius)
       .attr("cx", xPos)
       .attr("cy", yPos)
       .style("fill", img_url)
       .style("stroke", "white")
-      .style("stroke-width", fontSize / 4)
+      .style("stroke-width", this.fontSize / 4)
       .classed("artists", true);
 
-    nameTexts
+    popularityTexts
       .enter()
       .append("text")
       .attr("x", xPos)
-      .attr("y", (d, index) => yPos(d, index) + radius + 2 * fontSize)
+      .attr("y", textYPos)
       .text(d => `${d.popularity}`)
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
-      .style("font-size", () => `${fontSize}px`)
+      .style("font-size", () => `${this.fontSize}px`)
       .attr("fill", "white")
       .style("font-weight", "bold")
-      .classed("artist-name", true);
+      .classed("artist-popularity", true);
 
     circlesGroup
       .append("text")
@@ -206,7 +214,7 @@ export default class MainstreamMeter {
       .text(d => "▶")
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
-      .style("font-size", () => `${2 * fontSize}px`)
+      .style("font-size", () => `${2 * this.fontSize}px`)
       .style("opacity", 0.5)
       .style("cursor", "pointer")
       .attr("fill", "white")
@@ -229,5 +237,49 @@ export default class MainstreamMeter {
       .attr("x", this.margin.left)
       .style("fill", colors.white)
       .attr("y", this.height / 2 + lineHeight);
+
+    xLabel
+      .append("text")
+      .attr("x", this.margin.left)
+      .attr("y", this.height / 2 + 2 * this.fontSize)
+      .text("0")
+      .style("text-anchor", "start")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
+
+    xLabel
+      .append("text")
+      .attr("x", this.chartWidth + this.margin.left)
+      .attr("y", this.height / 2 + 2 * this.fontSize)
+      .text("100")
+      .style("text-anchor", "end")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
+
+    xLabel
+      .append("text")
+      .attr("x", this.margin.left)
+      .attr("y", this.height / 2 - 2 * this.fontSize)
+      .text("obscure")
+      .style("text-anchor", "start")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${2 * this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
+
+    xLabel
+      .append("text")
+      .attr("x", this.chartWidth + this.margin.left)
+      .attr("y", this.height / 2 - 2 * this.fontSize)
+      .text("mainstream")
+      .style("text-anchor", "end")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${2 * this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
   }
 }
