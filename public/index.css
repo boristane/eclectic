@@ -8,11 +8,13 @@ body {
 .top-artists-list-container {
   background-image: linear-gradient(to bottom right, #d23ee5, #581313);
   width: 100%;
+  text-align: center;
 }
 
 .mainstream-meter-container {
   width: 100%;
   background-image: linear-gradient(to right, #020202, #581313);
+  text-align: center;
 }
 
 .artists {

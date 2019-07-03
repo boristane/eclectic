@@ -228,24 +228,45 @@ export default class MainstreamMeter {
   }
 
   private generateLabels() {
+    const left = 10 * this.fontSize + 2 * this.margin.left;
+    const right = this.width - left;
+
     this.xScale = d3
       .scaleLinear()
-      .rangeRound([0, this.chartWidth])
+      .rangeRound([left, right])
       .domain([0, 100]);
 
     const xLabel = this.svg.append("g").classed(".x-label-group", true);
     const lineHeight = 2;
     xLabel
       .append("rect")
-      .attr("width", this.chartWidth)
+      .attr("width", this.width - 2 * left)
       .attr("height", lineHeight)
-      .attr("x", this.margin.left)
+      .attr("x", left)
       .style("fill", colors.white)
       .attr("y", this.height / 2 + lineHeight);
 
     xLabel
+      .append("rect")
+      .attr("width", left)
+      .attr("height", lineHeight)
+      .attr("x", right)
+      .style("fill", colors.white)
+      .style("opacity", 0.5)
+      .attr("y", this.height / 2 + lineHeight);
+
+    xLabel
+      .append("rect")
+      .attr("width", left)
+      .attr("height", lineHeight)
+      .attr("x", 2 * this.margin.left)
+      .style("fill", colors.white)
+      .style("opacity", 0.5)
+      .attr("y", this.height / 2 + lineHeight);
+
+    xLabel
       .append("text")
-      .attr("x", this.margin.left)
+      .attr("x", this.xScale(0))
       .attr("y", this.height / 2 + 2 * this.fontSize)
       .text("0")
       .style("text-anchor", "start")
@@ -256,7 +277,7 @@ export default class MainstreamMeter {
 
     xLabel
       .append("text")
-      .attr("x", this.chartWidth + this.margin.left)
+      .attr("x", this.xScale(100))
       .attr("y", this.height / 2 + 2 * this.fontSize)
       .text("100")
       .style("text-anchor", "end")
@@ -267,7 +288,7 @@ export default class MainstreamMeter {
 
     xLabel
       .append("text")
-      .attr("x", this.margin.left)
+      .attr("x", 2 * this.margin.left)
       .attr("y", this.height / 2 - 2 * this.fontSize)
       .text("obscure")
       .style("text-anchor", "start")
@@ -278,7 +299,7 @@ export default class MainstreamMeter {
 
     xLabel
       .append("text")
-      .attr("x", this.chartWidth + this.margin.left)
+      .attr("x", this.chartWidth + 2 * this.margin.left)
       .attr("y", this.height / 2 - 2 * this.fontSize)
       .text("mainstream")
       .style("text-anchor", "end")

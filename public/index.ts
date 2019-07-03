@@ -10,13 +10,11 @@ const margin: IMargin = {
   left: 10,
   right: 10
 };
-const width = document.body.clientWidth - margin.left - margin.right;
-const height = 0.95 * document.documentElement.clientHeight;
 
 function displayTopArtists(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
-    width,
-    height: 0.2 * width,
+    width: 0.95 * document.body.clientWidth,
+    height: 300,
     margin,
     data
   };
@@ -26,8 +24,8 @@ function displayTopArtists(data: IArtistListDataItem[]) {
 
 function displayMainstreamMeter(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
-    width: document.body.clientWidth - margin.left - margin.right,
-    height: 0.2 * width,
+    width: 0.95 * document.body.clientWidth,
+    height: 300,
     margin,
     data
   };

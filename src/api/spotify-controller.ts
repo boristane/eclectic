@@ -127,7 +127,7 @@ export async function doIt(req: Request, res: Response) {
 }
 
 async function getTopArtists(token: string) {
-  const response = await axiosInstance.get("/me/top/artists", {
+  const response = await axiosInstance.get("/me/top/artists/?time_range=short_term", {
     headers: {
       Authorization: `Bearer ${token}`
     }
