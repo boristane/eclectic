@@ -40,4 +40,5 @@ export interface IArtistListDataItem {
   image: string;
   id: string;
   track: any;
+  popularity: number;
 }

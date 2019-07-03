@@ -1,9 +1,9 @@
 import * as d3 from "d3";
 import ArtistList from "../src/front/artists-list";
 import { IMargin, IArtistListDataItem, IArtistsListProps } from "../src/types";
+import MainstreamMeter from "../src/front/mainstream-meter";
 
-function verticalBarDemo(data: IArtistListDataItem[]) {
-  let chart: ArtistList;
+function displayTopArtists(data: IArtistListDataItem[]) {
   function main(rawData: IArtistListDataItem[]): void {
     const margin: IMargin = {
       top: 10,
@@ -18,8 +18,29 @@ function verticalBarDemo(data: IArtistListDataItem[]) {
       margin,
       data
     };
-    chart = new ArtistList(mapProperties);
-    chart.make(".container");
+    const chart = new ArtistList(mapProperties);
+    chart.make(".top-artists-list-container");
+  }
+
+  main(data);
+}
+function displayMainstreamMeter(data: IArtistListDataItem[]) {
+  function main(rawData: IArtistListDataItem[]): void {
+    const margin: IMargin = {
+      top: 10,
+      bottom: 10,
+      left: 10,
+      right: 10
+    };
+    const data = rawData;
+    const mapProperties: IArtistsListProps = {
+      width: document.body.clientWidth,
+      height: 300,
+      margin,
+      data
+    };
+    const chart = new MainstreamMeter(mapProperties);
+    chart.make(".mainstream-meter-container");
   }
 
   main(data);
@@ -40,17 +61,17 @@ const main = () => {
           .then(data => {
             console.log(data);
             const { artistsTopTracks } = data;
-            const topArtistsData: IArtistListDataItem[] = data.topArtists
-              .map((artist, index) => ({
-                name: artist.name,
-                rank: index + 1,
-                image: artist.images[0].url,
-                id: artist.id,
-                track: artistsTopTracks.find(a => a.artistID === artist.id).track
-              }))
-              .filter(artist => artist.rank <= 10);
+            const topArtistsData: IArtistListDataItem[] = data.topArtists.map((artist, index) => ({
+              name: artist.name,
+              rank: index + 1,
+              image: artist.images[0].url,
+              id: artist.id,
+              track: artistsTopTracks.find(a => a.artistID === artist.id).track,
+              popularity: artist.popularity
+            }));
             console.log(topArtistsData);
-            verticalBarDemo(topArtistsData);
+            displayTopArtists(topArtistsData.filter(artist => artist.rank <= 10));
+            displayMainstreamMeter(topArtistsData);
           });
       });
   });

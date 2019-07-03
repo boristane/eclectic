@@ -4,9 +4,14 @@ body {
   margin: 0;
 }
 
-.container {
+.top-artists-list-container {
   background-image: linear-gradient(to bottom right, #3edce5, #1db954);
 }
+
+.mainstream-meter-container {
+  background-image: linear-gradient(to right, #020202, #1db954);
+}
+
 .artists {
   stroke: white;
   stroke-width: 5px;
