@@ -4,6 +4,7 @@ import { IArtistListDataItem, IArtistsListProps, IMargin } from "../types";
 
 import { Selection } from "d3";
 import colors from "../colors";
+import { playOrPause } from "./player";
 
 export default class ArtistList {
   width: number;
@@ -99,35 +100,17 @@ export default class ArtistList {
       .style("fill", "white");
   }
 
-  private playOrPause(url: string, isPlaying: boolean) {
-    const audioElt = document.getElementById("player") as HTMLAudioElement;
-    audioElt.src = url;
-    if (isPlaying) {
-      audioElt.pause();
-    } else {
-      audioElt.play();
-    }
-  }
-
   private handleClick(
     d: IArtistListDataItem,
     index: number,
     circles: Selection<any, any, any, any>
   ) {
-    for (let i = 0; i < this.data.length; i += 1) {
-      if (i === index) {
-        continue;
-      }
-      d3.select(circles[i])
-        .select(".play-button")
-        .text(d => "▶");
-    }
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     const textValue = textNode.text();
     const newTextValue = textValue === "▶" ? "| |" : "▶";
+    playOrPause(d.track, newTextValue === "▶");
     textNode.text(d => newTextValue);
-    this.playOrPause(d.track.preview_url, newTextValue === "▶");
   }
 
   private generateArtists(): void {

@@ -4,6 +4,7 @@ import { IArtistListDataItem, IArtistsListProps, IMargin } from "../types";
 
 import { Selection } from "d3";
 import colors from "../colors";
+import { playOrPause } from "./player";
 
 export default class MainstreamMeter {
   width: number;
@@ -100,35 +101,17 @@ export default class MainstreamMeter {
       .style("fill", "white");
   }
 
-  private playOrPause(url: string, isPlaying: boolean) {
-    const audioElt = document.getElementById("player") as HTMLAudioElement;
-    audioElt.src = url;
-    if (isPlaying) {
-      audioElt.pause();
-    } else {
-      audioElt.play();
-    }
-  }
-
   private handleClick(
     d: IArtistListDataItem,
     index: number,
     circles: Selection<any, any, any, any>
   ) {
-    for (let i = 0; i < this.data.length; i += 1) {
-      if (i === index) {
-        continue;
-      }
-      d3.select(circles[i])
-        .select(".play-button")
-        .text(d => "▶");
-    }
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     const textValue = textNode.text();
     const newTextValue = textValue === "▶" ? "| |" : "▶";
+    playOrPause(d.track, newTextValue === "▶");
     textNode.text(d => newTextValue);
-    this.playOrPause(d.track.preview_url, newTextValue === "▶");
   }
 
   private generateMainstreamMeter(): void {
@@ -156,9 +139,9 @@ export default class MainstreamMeter {
       // const offset = indexInSamePopularty > 1 ? indexInSamePopularty * (0.9 * this.radius) : 0;
       const offset = 0;
       if (index % 2) {
-        return this.chartHeight / 2 - (2 * this.radius + offset);
+        return this.height / 2 - (2 * this.radius + offset);
       }
-      return this.chartHeight / 2 + (2 * this.radius + offset);
+      return this.height / 2 + (2 * this.radius + offset);
     };
     const textYPos = (d, index) => {
       if (index % 2) {
@@ -244,7 +227,7 @@ export default class MainstreamMeter {
       .attr("height", lineHeight)
       .attr("x", left)
       .style("fill", colors.white)
-      .attr("y", this.height / 2 + lineHeight);
+      .attr("y", this.height / 2 + this.fontSize);
 
     xLabel
       .append("rect")
@@ -253,7 +236,7 @@ export default class MainstreamMeter {
       .attr("x", right)
       .style("fill", colors.white)
       .style("opacity", 0.5)
-      .attr("y", this.height / 2 + lineHeight);
+      .attr("y", this.height / 2 + this.fontSize);
 
     xLabel
       .append("rect")
@@ -262,12 +245,12 @@ export default class MainstreamMeter {
       .attr("x", 2 * this.margin.left)
       .style("fill", colors.white)
       .style("opacity", 0.5)
-      .attr("y", this.height / 2 + lineHeight);
+      .attr("y", this.height / 2 + this.fontSize);
 
     xLabel
       .append("text")
       .attr("x", this.xScale(0))
-      .attr("y", this.height / 2 + 2 * this.fontSize)
+      .attr("y", this.height / 2 + 3 * this.fontSize)
       .text("0")
       .style("text-anchor", "start")
       .style("dominant-baseline", "central")
@@ -278,7 +261,7 @@ export default class MainstreamMeter {
     xLabel
       .append("text")
       .attr("x", this.xScale(100))
-      .attr("y", this.height / 2 + 2 * this.fontSize)
+      .attr("y", this.height / 2 + 3 * this.fontSize)
       .text("100")
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
@@ -289,7 +272,7 @@ export default class MainstreamMeter {
     xLabel
       .append("text")
       .attr("x", 2 * this.margin.left)
-      .attr("y", this.height / 2 - 2 * this.fontSize)
+      .attr("y", this.height / 2 - this.fontSize)
       .text("obscure")
       .style("text-anchor", "start")
       .style("dominant-baseline", "central")
@@ -300,7 +283,7 @@ export default class MainstreamMeter {
     xLabel
       .append("text")
       .attr("x", this.chartWidth + 2 * this.margin.left)
-      .attr("y", this.height / 2 - 2 * this.fontSize)
+      .attr("y", this.height / 2 - this.fontSize)
       .text("mainstream")
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
