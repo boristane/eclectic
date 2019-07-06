@@ -127,7 +127,7 @@ export async function doIt(req: Request, res: Response) {
 }
 
 async function getTopArtists(token: string) {
-  const response = await axiosInstance.get("/me/top/artists/?time_range=short_term", {
+  const response = await axiosInstance.get("/me/top/artists/?time_range=long_term&limit=50", {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -178,27 +178,31 @@ async function getConnections(token: string, artist: IArtistListDataItem) {
   return { artist, connections: response.data.artists };
 }
 
-async function findConnections(
-  token: string,
-  artists: IArtistListDataItem[]
-): Promise<{ artist: string; connections: string[] }[]> {
-  const connections = [];
+async function findConnections(token: string, artists: IArtistListDataItem[]) {
+  const nodes = [];
+  const links = [];
   const artistsIDs = artists.map(artist => artist.id);
   const promises = artists.map(artist => getConnections(token, artist));
-  await Promise.all(promises).then(reloves => {
-    reloves.forEach(resolve => {
-      const relatedArtists = resolve.connections;
-      const relatedArtistsIDs = relatedArtists.map(artist => artist.id);
-      const commonIDs = artistsIDs.filter(value => relatedArtistsIDs.includes(value));
-      if (commonIDs.length > 0) {
-        const commonArtistNames = commonIDs.map(
-          id => artists.find(artist => artist.id === id).name
-        );
-        connections.push({ artist: resolve.artist.name, connections: commonArtistNames });
-      }
+  const resolves = await Promise.all(promises);
+  resolves.forEach(resolve => {
+    nodes.push({
+      id: resolve.artist.name,
+      image: resolve.artist.image,
+      i: resolve.artist.id,
+      group: resolve.artist.genres[0],
+      track: resolve.artist.track
     });
+    const relatedArtists = resolve.connections;
+    const relatedArtistsIDs = relatedArtists.map(artist => artist.id);
+    const commonIDs = artistsIDs.filter(value => relatedArtistsIDs.includes(value));
+    if (commonIDs.length > 0) {
+      const commonArtists = commonIDs.map(id => artists.find(artist => artist.id === id));
+      commonArtists.forEach(commonArtist => {
+        links.push({ source: resolve.artist.name, target: commonArtist.name });
+      });
+    }
   });
-  return connections;
+  return { links, nodes };
 }
 
 function clusterGenres(

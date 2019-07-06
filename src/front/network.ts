@@ -1,38 +1,33 @@
 import * as d3 from "d3";
 
-import { IArtistListDataItem, IArtistsListProps, IMargin } from "../types";
+import { IMargin } from "../types";
 
 import { Selection } from "d3";
 import colors from "../colors";
 import { playOrPause } from "./player";
 
-export default class ArtistList {
+export default class Network {
   width: number;
   height: number;
   margin: IMargin;
   xScale;
-  data: IArtistListDataItem[];
-  private chartHeight: number;
-  private chartWidth: number;
+  data: { links: any[]; nodes: any[] };
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
   private radius: number;
   private fontSize: number;
 
-  constructor(properties: IArtistsListProps) {
+  constructor(properties: any) {
     this.width = properties.width;
     this.height = properties.height;
     this.margin = properties.margin;
     this.data = properties.data;
-    this.chartWidth = this.width - this.margin.left - this.margin.right;
-    this.chartHeight = this.height - this.margin.top - this.margin.bottom;
-    this.radius = this.chartWidth / (2 * this.data.length) - 2 * this.margin.left;
+    this.radius = Math.min(this.width, this.height) / 60;
     this.fontSize = this.radius / 4;
   }
 
   public make(selector: string): void {
     this.buildSVG(selector);
-    this.generateLabels();
-    this.generateArtists();
+    this.generateNetwork();
   }
 
   private generateContainerGroups(): void {
@@ -52,7 +47,7 @@ export default class ArtistList {
       this.svg = d3
         .select(selector)
         .append("svg")
-        .classed("artists-list-chart", true);
+        .classed("network-chart", true);
       this.generateContainerGroups();
     }
     this.svg
@@ -60,12 +55,9 @@ export default class ArtistList {
       .attr("height", this.height + this.margin.top + this.margin.bottom);
   }
 
-  private handleMouseOver(
-    d: IArtistListDataItem,
-    index: number,
-    circles: Selection<any, any, any, any>
-  ) {
+  private handleMouseOver(d, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
+    d3.select(circle).raise();
     d3.select(circle)
       .select(".artists")
       .transition()
@@ -80,11 +72,7 @@ export default class ArtistList {
       .style("fill", colors.spotifyGreen);
   }
 
-  private handleMouseOut(
-    d: IArtistListDataItem,
-    index: number,
-    circles: Selection<any, any, any, any>
-  ) {
+  private handleMouseOut(d, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
     d3.select(circle)
       .select(".artists")
@@ -100,11 +88,7 @@ export default class ArtistList {
       .style("fill", "white");
   }
 
-  private handleClick(
-    d: IArtistListDataItem,
-    index: number,
-    circles: Selection<any, any, any, any>
-  ) {
+  private handleClick(d, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     const textValue = textNode.text();
@@ -113,25 +97,14 @@ export default class ArtistList {
     textNode.text(d => newTextValue);
   }
 
-  private generateArtists(): void {
-    let circlesGroup = this.svg
-      .select(".chart-group")
-      .selectAll(".artist")
-      .data(this.data);
-
-    const nameTexts = this.svg
-      .select(".chart-group")
-      .selectAll(".artist-name")
-      .data(this.data);
-
+  private generateNetwork(): void {
     const fillImages = this.svg
       .select(".chart-group")
       .selectAll(".image-fill")
-      .data(this.data);
+      .data(this.data.nodes);
 
-    const img_id = d => `img_${d.id}`;
-    const img_url = d => `url(#img_${d.id})`;
-    const xPos = d => this.xScale(d.rank) - this.radius - this.margin.left;
+    const img_id = d => `img_network_${d.i}`;
+    const img_url = d => `url(#img_network_${d.i})`;
 
     fillImages
       .enter()
@@ -148,42 +121,80 @@ export default class ArtistList {
       .attr("height", 2 * this.radius)
       .attr("xlink:href", d => d.image);
 
-    circlesGroup = circlesGroup
+    const drag = simulation => {
+      function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      return d3
+        .drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
+    };
+
+    const simulation = d3
+      .forceSimulation(this.data.nodes)
+      .force(
+        "link",
+        d3
+          .forceLink(this.data.links)
+          // @ts-ignore
+          .id(d => d.id)
+          .distance(this.radius * 6)
+      )
+      .force("collision", d3.forceCollide(this.radius * 3))
+      .force("center", d3.forceCenter(this.width / 2, this.height / 2));
+
+    const link = this.svg
+      .select(".chart-group")
+      .append("g")
+      .attr("stroke", colors.white)
+      .attr("stroke-opacity", 0.6)
+      .selectAll("line")
+      .data(this.data.links)
+      .join("line")
+      .attr("stroke-width", d => 2);
+
+    let nodeGroup = this.svg
+      .select(".chart-group")
+      .selectAll(".artist")
+      .data(this.data.nodes);
+
+    nodeGroup = nodeGroup
       .enter()
       .append("g")
       .on("mouseout", this.handleMouseOut.bind(this))
       .on("mouseover", this.handleMouseOver.bind(this))
-      .on("click", this.handleClick.bind(this));
+      .on("click", this.handleClick.bind(this))
+      .call(drag(simulation));
 
-    circlesGroup
+    const node = nodeGroup
       .append("circle")
       .attr("r", this.radius)
-      .attr("cx", xPos)
-      .attr("cy", this.chartHeight / 2)
       .style("fill", img_url)
-      .style("stroke", "white")
-      .style("stroke-width", this.fontSize / 4)
-      .classed("artists", true);
+      .style("stroke", colors.white)
+      .style("stroke-width", 2)
+      .classed("artists", true)
+      .style("cursor", "pointer");
 
-    circlesGroup.append("title").text(d => d.name);
+    nodeGroup.append("title").text(d => d.id);
 
-    nameTexts
-      .enter()
+    const playButton = nodeGroup
       .append("text")
-      .attr("x", xPos)
-      .attr("y", this.chartHeight / 2 + this.radius + 2 * this.fontSize)
-      .text(d => `#${d.rank} ${d.name}`)
-      .style("text-anchor", "middle")
-      .style("dominant-baseline", "central")
-      .style("font-size", () => `${this.fontSize}px`)
-      .attr("fill", "white")
-      .style("font-weight", "bold")
-      .classed("artist-name", true);
-
-    circlesGroup
-      .append("text")
-      .attr("x", xPos)
-      .attr("y", this.chartHeight / 2)
       .text(d => "▶")
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
@@ -193,12 +204,16 @@ export default class ArtistList {
       .attr("fill", "white")
       .style("font-weight", "bold")
       .classed("play-button", true);
-  }
 
-  private generateLabels() {
-    this.xScale = d3
-      .scaleLinear()
-      .rangeRound([this.chartWidth, 0])
-      .domain([Math.max(...this.data.map(a => a.rank)), 0]);
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node.attr("cx", d => d.x).attr("cy", d => d.y);
+      playButton.attr("x", d => d.x).attr("y", d => d.y);
+    });
   }
 }

@@ -3,6 +3,7 @@ import "babel-polyfill";
 import ArtistList from "../src/front/artists-list";
 import { IMargin, IArtistListDataItem, IArtistsListProps } from "../src/types";
 import MainstreamMeter from "../src/front/mainstream-meter";
+import Network from "../src/front/network";
 
 const margin: IMargin = {
   top: 10,
@@ -11,10 +12,13 @@ const margin: IMargin = {
   right: 10
 };
 
+var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
 function displayTopArtists(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
     width: 0.95 * document.body.clientWidth,
-    height: 300,
+    height: 0.3 * h,
     margin,
     data
   };
@@ -25,12 +29,23 @@ function displayTopArtists(data: IArtistListDataItem[]) {
 function displayMainstreamMeter(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
     width: 0.95 * document.body.clientWidth,
-    height: 300,
+    height: 0.7 * h,
     margin,
     data
   };
   const chart = new MainstreamMeter(mapProperties);
   chart.make(".mainstream-meter-container");
+}
+
+function displayNetwork(data) {
+  const mapProperties = {
+    width: 0.95 * document.body.clientWidth,
+    height: h,
+    margin,
+    data
+  };
+  const chart = new Network(mapProperties);
+  chart.make(".network-container");
 }
 
 async function handleClick(e) {
@@ -44,7 +59,8 @@ async function handleClick(e) {
   const { topArtists } = data;
   console.log(topArtists);
   displayTopArtists(topArtists.filter(artist => artist.rank <= 10));
-  displayMainstreamMeter(topArtists);
+  displayMainstreamMeter(topArtists.filter(artist => artist.rank <= 20));
+  displayNetwork(data.connections);
 }
 const main = () => {
   const button = document.getElementById("but");

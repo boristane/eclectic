@@ -132,11 +132,8 @@ export default class MainstreamMeter {
 
     const img_id = d => `img_mainstream_meter_${d.id}`;
     const img_url = d => `url(#img_mainstream_meter_${d.id})`;
-    const xPos = d => this.xScale(d.popularity) - this.radius - this.margin.left;
+    const xPos = d => this.xScale(d.popularity) - this.radius / 2;
     const yPos = (d, index) => {
-      // const samePopularity = this.data.filter(el => el.popularity === d.popularity);
-      // const indexInSamePopularty = samePopularity.indexOf(d);
-      // const offset = indexInSamePopularty > 1 ? indexInSamePopularty * (0.9 * this.radius) : 0;
       const offset = 0;
       if (index % 2) {
         return this.height / 2 - (2 * this.radius + offset);
@@ -181,6 +178,8 @@ export default class MainstreamMeter {
       .style("stroke", "white")
       .style("stroke-width", this.fontSize / 4)
       .classed("artists", true);
+
+    circlesGroup.append("title").text(d => d.name);
 
     popularityTexts
       .enter()
