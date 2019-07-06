@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-
 import { IMargin } from "../types";
 
 import { Selection } from "d3";
@@ -28,13 +27,11 @@ export default class Network {
   public make(selector: string): void {
     this.buildSVG(selector);
     this.generateNetwork();
+    this.generateLabels();
   }
 
   private generateContainerGroups(): void {
-    const container = this.svg
-      .append("g")
-      .classed("container-group", true)
-      .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`);
+    const container = this.svg.append("g").classed("container-group", true);
     container.append("g").classed("chart-group", true);
     container
       .select(".chart-group")
@@ -50,9 +47,7 @@ export default class Network {
         .classed("network-chart", true);
       this.generateContainerGroups();
     }
-    this.svg
-      .attr("width", this.width + this.margin.left + this.margin.right)
-      .attr("height", this.height + this.margin.top + this.margin.bottom);
+    this.svg.attr("width", this.width).attr("height", this.height);
   }
 
   private handleMouseOver(d, index: number, circles: Selection<any, any, any, any>) {
@@ -157,6 +152,7 @@ export default class Network {
           .distance(this.radius * 6)
       )
       .force("collision", d3.forceCollide(this.radius * 3))
+      .force("center", d3.forceManyBody().strength(-100))
       .force("center", d3.forceCenter(this.width / 2, this.height / 2));
 
     const link = this.svg
@@ -191,7 +187,7 @@ export default class Network {
       .classed("artists", true)
       .style("cursor", "pointer");
 
-    nodeGroup.append("title").text(d => d.id);
+    nodeGroup.append("title").text(d => `#${d.rank} ${d.id}`);
 
     const playButton = nodeGroup
       .append("text")
@@ -215,5 +211,20 @@ export default class Network {
       node.attr("cx", d => d.x).attr("cy", d => d.y);
       playButton.attr("x", d => d.x).attr("y", d => d.y);
     });
+  }
+
+  private generateLabels() {
+    const titleLabel = this.svg.append("g").classed(".title-label-group", true);
+
+    titleLabel
+      .append("text")
+      .attr("x", 20)
+      .attr("y", 40)
+      .text("Your Top 50 Artists Network")
+      .style("text-anchor", "start")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${10 * this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
   }
 }

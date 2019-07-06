@@ -117,6 +117,7 @@ export default class ArtistList {
     let circlesGroup = this.svg
       .select(".chart-group")
       .selectAll(".artist")
+      .attr("transform", `translate(0, ${3 * this.margin.top})`)
       .data(this.data);
 
     const nameTexts = this.svg
@@ -200,5 +201,18 @@ export default class ArtistList {
       .scaleLinear()
       .rangeRound([this.chartWidth, 0])
       .domain([Math.max(...this.data.map(a => a.rank)), 0]);
+
+    const titleLabel = this.svg.append("g").classed(".title-label-group", true);
+
+    titleLabel
+      .append("text")
+      .attr("x", 20)
+      .attr("y", 40)
+      .text("Your Top 10 Artists")
+      .style("text-anchor", "start")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${2 * this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
   }
 }

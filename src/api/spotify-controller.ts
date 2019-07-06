@@ -190,7 +190,8 @@ async function findConnections(token: string, artists: IArtistListDataItem[]) {
       image: resolve.artist.image,
       i: resolve.artist.id,
       group: resolve.artist.genres[0],
-      track: resolve.artist.track
+      track: resolve.artist.track,
+      rank: resolve.artist.rank
     });
     const relatedArtists = resolve.connections;
     const relatedArtistsIDs = relatedArtists.map(artist => artist.id);

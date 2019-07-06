@@ -179,7 +179,7 @@ export default class MainstreamMeter {
       .style("stroke-width", this.fontSize / 4)
       .classed("artists", true);
 
-    circlesGroup.append("title").text(d => d.name);
+    circlesGroup.append("title").text(d => `#${d.rank} ${d.name}`);
 
     popularityTexts
       .enter()
@@ -287,6 +287,19 @@ export default class MainstreamMeter {
       .style("text-anchor", "end")
       .style("dominant-baseline", "central")
       .style("font-size", () => `${2 * this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold");
+
+    const titleLabel = this.svg.append("g").classed(".title-label-group", true);
+
+    titleLabel
+      .append("text")
+      .attr("x", 20)
+      .attr("y", 40)
+      .text("Your Top 20 Artists Mainstream Meter")
+      .style("text-anchor", "start")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${4 * this.fontSize}px`)
       .attr("fill", "white")
       .style("font-weight", "bold");
   }

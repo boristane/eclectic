@@ -1,4 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Dosis&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Josefin+Sans:300,400");
+
+html {
+  scroll-behavior: smooth;
+}
 
 * {
   margin: 0;
@@ -11,20 +16,21 @@ body {
 }
 
 .top-artists-list-container {
-  background-image: linear-gradient(to bottom right, #d23ee5, #581313);
+  background-image: linear-gradient(to bottom right, #372b38, #6f4275, #581313);
   width: 100%;
   text-align: center;
 }
 
 .mainstream-meter-container {
   width: 100%;
-  background-image: linear-gradient(to right, #020202, #331b1b, #581313);
+  background: linear-gradient(to top right, #020202, #331b1b, #581313);
   text-align: center;
 }
 
 .network-container {
   width: 100%;
-  background-image: linear-gradient(to right, #e2e4c4, #103017);
+  background: linear-gradient(to bottom right, #151b16, #325037, #689670, #e2e4c4);
+  background: -webkit-linear-gradient(to bottom right, #151b16, #325037, #689670, #e2e4c4);
   text-align: center;
 }
 
@@ -53,6 +59,7 @@ text {
   transition: opacity 0.25s ease-in-out;
   -moz-transition: opacity 0.25s ease-in-out;
   -webkit-transition: opacity 0.25s ease-in-out;
+  z-index: 100;
 }
 
 #visual-player:hover {
@@ -93,4 +100,88 @@ text {
 #visual-player-artist {
   color: gray;
   font-size: 0.7em;
+}
+
+section {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+section a {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  z-index: 2;
+  display: inline-block;
+  color: #fff;
+  font: normal 400 20px/1 "Josefin Sans", sans-serif;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: opacity 0.3s;
+  opacity: 0.1;
+}
+section a:hover {
+  opacity: 0.8;
+}
+
+section a {
+  padding-top: 60px;
+}
+section a span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 30px;
+  height: 50px;
+  margin-left: -15px;
+  border: 2px solid #fff;
+  border-radius: 50px;
+  box-sizing: border-box;
+}
+section a span::before {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  background-color: #fff;
+  border-radius: 100%;
+  -webkit-animation: sdb10 2s infinite;
+  animation: sdb10 2s infinite;
+  box-sizing: border-box;
+}
+@-webkit-keyframes sdb10 {
+  0% {
+    -webkit-transform: translate(0, 0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    -webkit-transform: translate(0, 20px);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes sdb10 {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(0, 20px);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
