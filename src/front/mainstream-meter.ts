@@ -295,12 +295,12 @@ export default class MainstreamMeter {
     titleLabel
       .append("text")
       .attr("x", 20)
-      .attr("y", 40)
+      .attr("y", 60)
       .text("Your Top 20 Artists Mainstream Meter")
       .style("text-anchor", "start")
       .style("dominant-baseline", "central")
       .style("font-size", () => `${4 * this.fontSize}px`)
-      .attr("fill", "white")
-      .style("font-weight", "bold");
+      .classed("chart-title", true)
+      .attr("fill", "white");
   }
 }

@@ -96,14 +96,6 @@ export async function doIt(req: Request, res: Response) {
   const { token } = req.query;
   try {
     const topArtists: IArtistListDataItem[] = await getTopArtists(token);
-    const popularities: number[] = topArtists.map(artist => artist.popularity);
-    const meanPopularity = popularities.reduce((acc, c) => acc + c) / popularities.length;
-    const minPopularArtist = topArtists.find(
-      artist => artist.popularity === Math.min(...popularities)
-    );
-    const maxPopularArtist = topArtists.find(
-      artist => artist.popularity === Math.max(...popularities)
-    );
     const genreClusters = clusterGenres(topArtists);
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;
@@ -114,12 +106,7 @@ export async function doIt(req: Request, res: Response) {
       topArtists,
       connections,
       topTracks,
-      explicit,
-      popularity: {
-        meanPopularity,
-        minPopularArtist,
-        maxPopularArtist
-      }
+      explicit
     });
   } catch (err) {
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
@@ -208,8 +195,8 @@ async function findConnections(token: string, artists: IArtistListDataItem[]) {
 
 function clusterGenres(
   artists: IArtistListDataItem[]
-): { genre: string; count: number; artists: string[] }[] {
-  const cluster: { genre: string; count: number; artists: string[] }[] = [];
+): { genre: string; count: number; artists: IArtistListDataItem[] }[] {
+  const cluster: { genre: string; count: number; artists: IArtistListDataItem[] }[] = [];
   artists.forEach(artist => {
     const genres = artist.genres;
     genres.forEach(genre => {
@@ -218,11 +205,11 @@ function clusterGenres(
         cluster.push({
           genre,
           count: 1,
-          artists: [artist.name]
+          artists: [artist]
         });
       } else {
         g.count += 1;
-        g.artists.push(artist.name);
+        g.artists.push(artist);
       }
     });
   });

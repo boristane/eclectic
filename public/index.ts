@@ -4,6 +4,7 @@ import ArtistList from "../src/front/artists-list";
 import { IMargin, IArtistListDataItem, IArtistsListProps } from "../src/types";
 import MainstreamMeter from "../src/front/mainstream-meter";
 import Network from "../src/front/network";
+import GenreChart from "../src/front/genres";
 
 const margin: IMargin = {
   top: 10,
@@ -18,7 +19,7 @@ var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 function displayTopArtists(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
     width: 0.95 * document.body.clientWidth,
-    height: 0.3 * h,
+    height: 0.35 * h,
     margin,
     data
   };
@@ -29,7 +30,7 @@ function displayTopArtists(data: IArtistListDataItem[]) {
 function displayMainstreamMeter(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
     width: 0.95 * document.body.clientWidth,
-    height: 0.7 * h,
+    height: 0.65 * h,
     margin,
     data
   };
@@ -48,6 +49,22 @@ function displayNetwork(data) {
   chart.make(".network-container");
 }
 
+function displayGenres(data) {
+  const duration = 10000;
+  const mapProperties = {
+    width: 0.95 * document.body.clientWidth,
+    height: h,
+    margin,
+    data,
+    duration
+  };
+  const chart = new GenreChart(mapProperties);
+  chart.make(".genres-container");
+  setInterval(() => {
+    chart.update(data);
+  }, duration);
+}
+
 async function handleClick(e) {
   const params = new URLSearchParams(window.location.search);
   const code = params.get("code");
@@ -61,6 +78,7 @@ async function handleClick(e) {
   displayTopArtists(topArtists.filter(artist => artist.rank <= 10));
   displayMainstreamMeter(topArtists.filter(artist => artist.rank <= 20));
   displayNetwork(data.connections);
+  displayGenres(data.genreClusters);
 }
 const main = () => {
   const button = document.getElementById("but");

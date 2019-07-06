@@ -52,7 +52,7 @@ function updateVisualPlayer(track) {
   image.src = track.album.images[0].url;
   let t: string = track.name;
   let a: string = track.artists.map(artist => artist.name).join(", ");
-  if (t.length > 25) t = t.substring(0, 25) + "...";
+  if (t.length > 20) t = t.substring(0, 20) + "...";
   if (a.length > 25) a = a.substring(0, 25) + "...";
   title.textContent = t;
   artist.textContent = a;

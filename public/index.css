@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Dosis&display=swap");
 @import url("https://fonts.googleapis.com/css?family=Josefin+Sans:300,400");
+@import url("https://fonts.googleapis.com/css?family=Comfortaa&display=swap");
 
 html {
   scroll-behavior: smooth;
@@ -16,7 +17,7 @@ body {
 }
 
 .top-artists-list-container {
-  background-image: linear-gradient(to bottom right, #372b38, #6f4275, #581313);
+  background-image: linear-gradient(to bottom right, #372b38, #6f4275, #754257, #581313);
   width: 100%;
   text-align: center;
 }
@@ -34,11 +35,22 @@ body {
   text-align: center;
 }
 
+.genres-container {
+  width: 100%;
+  background: linear-gradient(to bottom right, #151b16, #333250, #96687d, #8c989e);
+  background: -webkit-linear-gradient(to bottom right, #151b16, #333250, #96687d, #8c989e);
+  text-align: center;
+}
+
 .artists:hover {
   cursor: pointer;
 }
 text {
   font-family: "Dosis", sans-serif;
+}
+
+.chart-title {
+  font-family: "Comfortaa", sans-serif;
 }
 
 #visual-player {
