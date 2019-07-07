@@ -86,6 +86,8 @@ export default class ArtistList {
     circles: Selection<any, any, any, any>
   ) {
     const circle = circles[index];
+    const textNode = d3.select(circle).select(".play-button");
+    if (textNode.text() === "| |") return;
     d3.select(circle)
       .select(".artists")
       .transition()
@@ -111,6 +113,10 @@ export default class ArtistList {
     const newTextValue = textValue === "▶" ? "| |" : "▶";
     playOrPause(d.track, newTextValue === "▶");
     textNode.text(d => newTextValue);
+    d3.select(circle)
+      .select(".artists")
+      .style("stroke", d => (newTextValue === "▶" ? colors.white : colors.spotifyGreen));
+    textNode.style("fill", d => (newTextValue === "▶" ? colors.white : colors.spotifyGreen));
   }
 
   private generateArtists(): void {

@@ -69,18 +69,20 @@ export default class Network {
 
   private handleMouseOut(d, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
+    const textNode = d3.select(circle).select(".play-button");
+    if (textNode.text() === "| |") return;
     d3.select(circle)
       .select(".artists")
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
-      .style("stroke", "white");
+      .style("stroke", colors.white);
     d3.select(circle)
       .select(".play-button")
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
-      .style("fill", "white");
+      .style("fill", colors.white);
   }
 
   private handleClick(d, index: number, circles: Selection<any, any, any, any>) {
@@ -90,6 +92,10 @@ export default class Network {
     const newTextValue = textValue === "▶" ? "| |" : "▶";
     playOrPause(d.track, newTextValue === "▶");
     textNode.text(d => newTextValue);
+    d3.select(circle)
+      .select(".artists")
+      .style("stroke", d => (newTextValue === "▶" ? colors.white : colors.spotifyGreen));
+    textNode.style("fill", d => (newTextValue === "▶" ? colors.white : colors.spotifyGreen));
   }
 
   private generateNetwork(): void {

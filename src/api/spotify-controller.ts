@@ -95,7 +95,9 @@ export async function refreshToken(req: Request, res: Response) {
 export async function doIt(req: Request, res: Response) {
   const { token } = req.query;
   try {
-    const topArtists: IArtistListDataItem[] = await getTopArtists(token);
+    const user = await getUserProfile(token);
+    const country = user.country;
+    const topArtists: IArtistListDataItem[] = await getTopArtists(token, country);
     const genreClusters = clusterGenres(topArtists);
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;
@@ -106,14 +108,15 @@ export async function doIt(req: Request, res: Response) {
       topArtists,
       connections,
       topTracks,
-      explicit
+      explicit,
+      user
     });
   } catch (err) {
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
   }
 }
 
-async function getTopArtists(token: string) {
+async function getTopArtists(token: string, country: string) {
   const response = await axiosInstance.get("/me/top/artists/?time_range=long_term&limit=50", {
     headers: {
       Authorization: `Bearer ${token}`
@@ -122,7 +125,7 @@ async function getTopArtists(token: string) {
   const artists: IArtist[] = response.data.items;
   const artistsTopTracks = [];
   for (let i = 0; i < artists.length; i += 1) {
-    const artistTopTracks = (await getArtistTopTracks(token, artists[i].id)).tracks;
+    const artistTopTracks = (await getArtistTopTracks(token, artists[i].id, country)).tracks;
     const track = artistTopTracks[Math.floor(Math.random() * artistTopTracks.length)];
     artistsTopTracks.push({ artistID: artists[i].id, track });
   }
@@ -138,8 +141,8 @@ async function getTopArtists(token: string) {
   return topArtists;
 }
 
-async function getArtistTopTracks(token: string, artistID: string) {
-  const response = await axiosInstance.get(`/artists/${artistID}/top-tracks?country=GB`, {
+async function getArtistTopTracks(token: string, artistID: string, country: string) {
+  const response = await axiosInstance.get(`/artists/${artistID}/top-tracks?country=${country}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -220,4 +223,13 @@ function getExplicit(tracks: any[]): { explicit: number; total: number } {
   const total = tracks.length;
   const explicit = tracks.filter(track => track.explicit).length;
   return { explicit, total };
+}
+
+async function getUserProfile(token: string) {
+  const response = await axiosInstance.get(`/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data;
 }

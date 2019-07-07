@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import colors from "../colors";
 
 let isPlaying: boolean;
 const audioElt = document.getElementById("player") as HTMLAudioElement;
@@ -6,6 +7,12 @@ const visualPlayer = document.getElementById("visual-player") as HTMLDivElement;
 
 export function playOrPause(track, isPause: boolean) {
   d3.selectAll(".play-button").text("▶");
+  d3.selectAll(".play-button").style("fill", colors.lightgray);
+  d3.selectAll(".genres").attr("stroke", colors.lightgray);
+  d3.selectAll(".genres").style("stroke", colors.lightgray);
+  d3.selectAll(".genres").attr("fill", colors.lightgray);
+  d3.selectAll(".genres").style("fill", colors.lightgray);
+  d3.selectAll(".artists").style("stroke", colors.lightgray);
   audioElt.src = audioElt.src === track.preview_url ? audioElt.src : track.preview_url;
   if (isPause) {
     audioElt.pause();

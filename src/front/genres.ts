@@ -9,13 +9,15 @@ export default class GenreChart {
   height: number;
   data: any;
   duration: number;
+  isPlaying: boolean[];
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
 
   constructor(properties) {
     this.width = properties.width;
     this.height = properties.height;
-    this.data = properties.data;
+    this.data = properties.data.sort((a, b) => a.count - b.count);
     this.duration = properties.duration / 4 || 5000;
+    this.isPlaying = new Array(this.data.length);
   }
 
   public make(selector: string): void {
@@ -53,24 +55,29 @@ export default class GenreChart {
   private handleMouseOver(d, index: number, valueTexts: Selection<any, any, any, any>) {
     const valueText = valueTexts[index];
     d3.select(valueText).style("fill", colors.spotifyGreen);
+    d3.select(valueText).style("stroke", colors.spotifyGreen);
   }
 
   private handleMouseOut(d, index: number, valueTexts: Selection<any, any, any, any>) {
     const valueText = valueTexts[index];
+    if (this.isPlaying[index] === true) return;
     d3.select(valueText).style("fill", colors.white);
+    d3.select(valueText).style("stroke", colors.white);
   }
 
   private handleClick(d, index: number, valueTexts: Selection<any, any, any, any>) {
     const valueText = valueTexts[index];
     const textNode = d3.select(valueText);
     const color = textNode.attr("stroke");
-    const newColor = color === colors.lightgray ? colors.red : colors.lightgray;
+    const newColor = color === colors.lightgray ? colors.spotifyGreen : colors.lightgray;
     const randomArtistIndex = Math.floor(Math.random() * d.artists.length);
     playOrPause(d.artists[randomArtistIndex].track, newColor === colors.white);
-    for (let i = 0; i < this.data.length; i += 1) {
-      d3.select(valueTexts[i]).style("stroke", colors.white);
+    for (let i = 0; i < this.isPlaying.length; i += 1) {
+      this.isPlaying[i] = false;
     }
+    this.isPlaying[index] = newColor === colors.spotifyGreen;
     textNode.style("stroke", newColor);
+    textNode.style("fill", newColor);
   }
 
   private generateBars(): void {
@@ -99,6 +106,7 @@ export default class GenreChart {
       .style("font-size", fontSize)
       .attr("fill", colors.lightgray)
       .attr("stroke", colors.lightgray)
+      .attr("stroke-width", 2)
       .style("font-weight", "bold")
       .style("cursor", "pointer")
       .classed("genres", true)
