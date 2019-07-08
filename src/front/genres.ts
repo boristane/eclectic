@@ -114,7 +114,7 @@ export default class GenreChart {
       .on("mouseover", this.handleMouseOver.bind(this))
       .on("click", this.handleClick.bind(this));
 
-    a.append("title").text(d => d.genre);
+    a.append("title").text((d, i, data) => `#${this.data.length - i} ${d.genre}`);
 
     a.transition()
       .duration(2 * this.duration)

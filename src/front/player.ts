@@ -51,7 +51,9 @@ function animate() {
 }
 
 function updateVisualPlayer(track) {
-  visualPlayer.style.opacity = "0.5";
+  setTimeout(() => {
+    visualPlayer.style.opacity = "0.5";
+  }, 500);
   const image = document.getElementById("visual-player-photo") as HTMLImageElement;
   const title = document.getElementById("visual-player-title") as HTMLDivElement;
   const artist = document.getElementById("visual-player-artist") as HTMLDivElement;

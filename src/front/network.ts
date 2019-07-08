@@ -20,6 +20,7 @@ export default class Network {
     this.height = properties.height;
     this.margin = properties.margin;
     this.data = properties.data;
+    this.data.nodes.sort((a, b) => b.numLinks - a.numLinks);
     this.radius = Math.min(this.width, this.height) / 60;
     this.fontSize = this.radius / 4;
   }
