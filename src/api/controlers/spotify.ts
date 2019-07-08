@@ -57,7 +57,11 @@ export async function getToken(req: Request, res: Response) {
     }
   };
   try {
-    const response = await axios.post("https://accounts.spotify.com/api/token", dataString, axiosConfig);
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      dataString,
+      axiosConfig
+    );
     res.status(200).json(response.data);
   } catch {
     res.status(500).json({ error: "invalid_token" });
@@ -79,7 +83,11 @@ export async function refreshToken(req: Request, res: Response) {
     }
   };
   try {
-    const response = await axios.post("https://accounts.spotify.com/api/token", dataString, axiosConfig);
+    const response = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      dataString,
+      axiosConfig
+    );
     res.status(200).json(response.data);
   } catch {
     res.status(500).json({ error: "invalid_token" });
@@ -96,8 +104,7 @@ export async function doIt(req: Request, res: Response) {
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;
     const explicit = getExplicit(topTracks);
-    console.log(user.id, user.birthdate, user.country);
-    saveToDB(user.id, user.birthdate, user.country);
+    saveToDB(user.id, user.birthdate, user.country, user.followers.total);
 
     res.status(200).json({
       genreClusters,
@@ -137,7 +144,11 @@ async function getTopArtists(token: string, country: string): Promise<IArtistLis
   return topArtists;
 }
 
-async function getArtistTopTracks(token: string, artistID: string, country: string): Promise<{ tracks: ISpotifyTrack[] }> {
+async function getArtistTopTracks(
+  token: string,
+  artistID: string,
+  country: string
+): Promise<{ tracks: ISpotifyTrack[] }> {
   const response = await axiosInstance.get(`/artists/${artistID}/top-tracks?country=${country}`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -203,7 +214,9 @@ async function findConnections(
   return { links, nodes };
 }
 
-function clusterGenres(artists: IArtistListDataItem[]): { genre: string; count: number; artists: IArtistListDataItem[] }[] {
+function clusterGenres(
+  artists: IArtistListDataItem[]
+): { genre: string; count: number; artists: IArtistListDataItem[] }[] {
   const cluster: { genre: string; count: number; artists: IArtistListDataItem[] }[] = [];
   artists.forEach(artist => {
     const genres = artist.genres;

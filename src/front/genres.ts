@@ -105,7 +105,6 @@ export default class GenreChart {
       .style("dominant-baseline", "central")
       .attr("font-size", d => {
         const a = fontSize(d);
-        console.log(a);
         return a;
       })
       .attr("fill", colors.lightgray)

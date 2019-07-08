@@ -88,7 +88,7 @@ export interface ISpotifyUser {
   display_name: string;
   email: string;
   external_urls: { [propName: string]: string };
-  followers: { href?: string; total: 3829 };
+  followers: { href?: string; total: number };
   href: string;
   id: string;
   images: {
