@@ -1,6 +1,5 @@
 import User from "../models/user";
 import mongoose from "mongoose";
-import { utcParse } from "d3";
 
 export async function create(
   product: string,

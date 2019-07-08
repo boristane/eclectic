@@ -4,6 +4,7 @@ import { IMargin, ISpotifyTrack } from "../types";
 import { Selection } from "d3";
 import colors from "./colors";
 import { playOrPause } from "./player";
+import moment from "moment";
 
 export default class AgesChart {
   width: number;
@@ -19,11 +20,11 @@ export default class AgesChart {
     this.width = properties.width;
     this.height = properties.height;
     this.margin = properties.margin;
-    this.data = properties.data;
+    this.data = properties.data.sort((a, b) => a.year - b.year);
     this.data.sort((a, b) => b.year - a.year);
 
     const maxPerLine = Math.max(...this.data.map(d => d.tracks.length));
-    const maxPerCol = this.data.length;
+    const maxPerCol = Math.abs(this.data[0].year - this.data[this.data.length - 1].year);
     this.radius = Math.min(this.width, this.height) / (1.5 * Math.max(maxPerCol, maxPerLine));
     this.fontSize = this.radius / 4;
   }
@@ -103,12 +104,20 @@ export default class AgesChart {
   }
 
   private generateAgesGroups(): void {
-    const data: { track: ISpotifyTrack; year: number }[] = [];
+    let data: { track: ISpotifyTrack; year: number }[] = [];
     this.data.forEach(d => {
       d.tracks.forEach(track => {
         data.push({ track, year: d.year });
       });
     });
+
+    data = data.sort(
+      (a, b) =>
+        // @ts-ignore
+        moment(a.track.album.release_date, "YYYY-MM-DD") -
+        // @ts-ignore
+        moment(b.track.album.release_date, "YYYY-MM-DD")
+    );
 
     let circlesGroup = this.svg
       .select(".chart-group")
@@ -172,7 +181,7 @@ export default class AgesChart {
       .style("stroke-width", this.fontSize / 4)
       .classed("artists", true);
 
-    circlesGroup.append("title").text(d => `#${d.year} ${d.track.name}`);
+    circlesGroup.append("title").text(d => `${d.track.album.release_date}\n${d.track.name}`);
 
     years
       .enter()
@@ -211,12 +220,13 @@ export default class AgesChart {
       .text("Your Top 50 Songs Release Timeline")
       .style("text-anchor", "start")
       .style("dominant-baseline", "central")
-      .style("font-size", () => `${2 * this.fontSize}px`)
+      .style("font-size", () => `${6 * this.fontSize}px`)
       .attr("fill", "white")
       .classed("chart-title", true);
 
-    const top = 3 * this.radius;
-    const bottom = this.height - top;
+    const offset = 10 * this.fontSize;
+    const top = 3 * this.radius + offset;
+    const bottom = this.height - top + offset;
 
     this.yScale = d3
       .scaleLinear()
@@ -230,7 +240,7 @@ export default class AgesChart {
     const lineWidth = 2;
     yLabel
       .append("rect")
-      .attr("height", this.height - 2 * top)
+      .attr("height", this.height - 2 * top + offset)
       .attr("width", lineWidth)
       .attr("y", top)
       .style("fill", colors.white)

@@ -9,7 +9,7 @@ import { saveToDB } from "./users";
 require("dotenv").config();
 
 const axiosInstance = axios.create({ baseURL: "https://api.spotify.com/v1" });
-const term = "long_term";
+const term = "medium_term";
 
 const clientId = process.env["SPOTIFY_CLIENT_ID"];
 const clientSecret = process.env["SPOTIFY_CLIENT_SECRET"];
@@ -106,7 +106,7 @@ export async function doIt(req: Request, res: Response) {
     const topTracks = (await getTopTracks(token)).items;
     const explicit = getExplicit(topTracks);
     const tracksAgesClusters = clusterTracksAges(topTracks);
-    saveToDB(user.id, user.birthdate, user.country, user.followers.total);
+    saveToDB(user.product, user.birthdate, user.country, user.followers.total);
 
     res.status(200).json({
       genreClusters,

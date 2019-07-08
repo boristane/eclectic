@@ -44,8 +44,8 @@ body {
 
 .ages-container {
   width: 100%;
-  background: linear-gradient(to bottom right, #151b16, #333250, #96687d, #8c989e);
-  background: -webkit-linear-gradient(to bottom right, #151b16, #333250, #96687d, #8c989e);
+  background: linear-gradient(to bottom left, #8c989e, #356e85, #ac8961, #060c20);
+  background: -webkit-linear-gradient(to bottom right, #8c989e, #853585, #266335, #061720);
   text-align: center;
 }
 
