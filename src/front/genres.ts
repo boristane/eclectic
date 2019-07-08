@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 import { Selection } from "d3";
-import colors from "../colors";
+import colors from "./colors";
 import { playOrPause } from "./player";
 
 export default class GenreChart {
@@ -23,13 +23,13 @@ export default class GenreChart {
   public make(selector: string): void {
     this.buildSVG(selector);
     this.generateLabels();
-    this.generateBars();
+    this.generateGenreTexts();
   }
 
   public update(data): void {
     this.data = data;
     d3.selectAll("*").transition();
-    this.generateBars();
+    this.generateGenreTexts();
   }
 
   private generateContainerGroups(): void {
@@ -80,7 +80,7 @@ export default class GenreChart {
     textNode.style("fill", newColor);
   }
 
-  private generateBars(): void {
+  private generateGenreTexts(): void {
     const maxCount = Math.max(...this.data.map(a => a.count));
     const offsetX = this.width / 15;
     const offsetY = this.height / 10;
@@ -103,7 +103,11 @@ export default class GenreChart {
       .merge(valueTexts)
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
-      .style("font-size", fontSize)
+      .attr("font-size", d => {
+        const a = fontSize(d);
+        console.log(a);
+        return a;
+      })
       .attr("fill", colors.lightgray)
       .attr("stroke", colors.lightgray)
       .attr("stroke-width", 2)

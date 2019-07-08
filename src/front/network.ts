@@ -1,8 +1,8 @@
 import * as d3 from "d3";
-import { IMargin } from "../types";
 
+import { IMargin } from "../types";
 import { Selection } from "d3";
-import colors from "../colors";
+import colors from "./colors";
 import { playOrPause } from "./player";
 
 export default class Network {

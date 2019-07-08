@@ -1,8 +1,10 @@
-import { generateRandomString } from "../utils";
+import { IArtistListDataItem, ISpotifyArtist, ISpotifyTrack, ISpotifyUser } from "../../types";
 import { Request, Response } from "express";
-import qs from "qs";
+
 import axios from "axios";
-import { IArtist, IArtistListDataItem } from "../types";
+import { generateRandomString } from "../utils";
+import qs from "qs";
+import { saveToDB } from "./users";
 
 require("dotenv").config();
 
@@ -55,11 +57,7 @@ export async function getToken(req: Request, res: Response) {
     }
   };
   try {
-    const response = await axios.post(
-      "https://accounts.spotify.com/api/token",
-      dataString,
-      axiosConfig
-    );
+    const response = await axios.post("https://accounts.spotify.com/api/token", dataString, axiosConfig);
     res.status(200).json(response.data);
   } catch {
     res.status(500).json({ error: "invalid_token" });
@@ -81,11 +79,7 @@ export async function refreshToken(req: Request, res: Response) {
     }
   };
   try {
-    const response = await axios.post(
-      "https://accounts.spotify.com/api/token",
-      dataString,
-      axiosConfig
-    );
+    const response = await axios.post("https://accounts.spotify.com/api/token", dataString, axiosConfig);
     res.status(200).json(response.data);
   } catch {
     res.status(500).json({ error: "invalid_token" });
@@ -102,6 +96,8 @@ export async function doIt(req: Request, res: Response) {
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;
     const explicit = getExplicit(topTracks);
+    console.log(user.id, user.birthdate, user.country);
+    saveToDB(user.id, user.birthdate, user.country);
 
     res.status(200).json({
       genreClusters,
@@ -116,13 +112,13 @@ export async function doIt(req: Request, res: Response) {
   }
 }
 
-async function getTopArtists(token: string, country: string) {
+async function getTopArtists(token: string, country: string): Promise<IArtistListDataItem[]> {
   const response = await axiosInstance.get("/me/top/artists/?time_range=short_term&limit=50", {
     headers: {
       Authorization: `Bearer ${token}`
     }
   });
-  const artists: IArtist[] = response.data.items;
+  const artists: ISpotifyArtist[] = response.data.items;
   const artistsTopTracks = [];
   for (let i = 0; i < artists.length; i += 1) {
     const artistTopTracks = (await getArtistTopTracks(token, artists[i].id, country)).tracks;
@@ -141,7 +137,7 @@ async function getTopArtists(token: string, country: string) {
   return topArtists;
 }
 
-async function getArtistTopTracks(token: string, artistID: string, country: string) {
+async function getArtistTopTracks(token: string, artistID: string, country: string): Promise<{ tracks: ISpotifyTrack[] }> {
   const response = await axiosInstance.get(`/artists/${artistID}/top-tracks?country=${country}`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -150,7 +146,7 @@ async function getArtistTopTracks(token: string, artistID: string, country: stri
   return response.data;
 }
 
-async function getTopTracks(token: string) {
+async function getTopTracks(token: string): Promise<{ items: ISpotifyTrack[] }> {
   const response = await axiosInstance.get("/me/top/tracks", {
     headers: {
       Authorization: `Bearer ${token}`
@@ -159,7 +155,10 @@ async function getTopTracks(token: string) {
   return response.data;
 }
 
-async function getConnections(token: string, artist: IArtistListDataItem) {
+async function getConnections(
+  token: string,
+  artist: IArtistListDataItem
+): Promise<{ artist: IArtistListDataItem; connections: ISpotifyArtist[] }> {
   const response = await axiosInstance.get(`/artists/${artist.id}/related-artists`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -168,9 +167,12 @@ async function getConnections(token: string, artist: IArtistListDataItem) {
   return { artist, connections: response.data.artists };
 }
 
-async function findConnections(token: string, artists: IArtistListDataItem[]) {
+async function findConnections(
+  token: string,
+  artists: IArtistListDataItem[]
+): Promise<{ links: { source: string; target: string }[]; nodes: any }> {
   const nodes = [];
-  const links = [];
+  const links: { source: string; target: string }[] = [];
   const artistsIDs = artists.map(artist => artist.id);
   const promises = artists.map(artist => getConnections(token, artist));
   const resolves = await Promise.all(promises);
@@ -201,9 +203,7 @@ async function findConnections(token: string, artists: IArtistListDataItem[]) {
   return { links, nodes };
 }
 
-function clusterGenres(
-  artists: IArtistListDataItem[]
-): { genre: string; count: number; artists: IArtistListDataItem[] }[] {
+function clusterGenres(artists: IArtistListDataItem[]): { genre: string; count: number; artists: IArtistListDataItem[] }[] {
   const cluster: { genre: string; count: number; artists: IArtistListDataItem[] }[] = [];
   artists.forEach(artist => {
     const genres = artist.genres;
@@ -230,7 +230,7 @@ function getExplicit(tracks: any[]): { explicit: number; total: number } {
   return { explicit, total };
 }
 
-async function getUserProfile(token: string) {
+async function getUserProfile(token: string): Promise<ISpotifyUser> {
   const response = await axiosInstance.get(`/me`, {
     headers: {
       Authorization: `Bearer ${token}`

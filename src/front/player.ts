@@ -1,5 +1,6 @@
 import * as d3 from "d3";
-import colors from "../colors";
+
+import colors from "./colors";
 
 let isPlaying: boolean;
 const audioElt = document.getElementById("player") as HTMLAudioElement;

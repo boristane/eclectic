@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { IArtistListDataItem, IArtistsListProps, IMargin } from "../types";
 
 import { Selection } from "d3";
-import colors from "../colors";
+import colors from "./colors";
 import { playOrPause } from "./player";
 
 export default class ArtistList {
@@ -60,11 +60,7 @@ export default class ArtistList {
       .attr("height", this.height + this.margin.top + this.margin.bottom);
   }
 
-  private handleMouseOver(
-    d: IArtistListDataItem,
-    index: number,
-    circles: Selection<any, any, any, any>
-  ) {
+  private handleMouseOver(d: IArtistListDataItem, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
     d3.select(circle)
       .select(".artists")
@@ -80,11 +76,7 @@ export default class ArtistList {
       .style("fill", colors.spotifyGreen);
   }
 
-  private handleMouseOut(
-    d: IArtistListDataItem,
-    index: number,
-    circles: Selection<any, any, any, any>
-  ) {
+  private handleMouseOut(d: IArtistListDataItem, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     if (textNode.text() === "| |") return;
@@ -102,11 +94,7 @@ export default class ArtistList {
       .style("fill", "white");
   }
 
-  private handleClick(
-    d: IArtistListDataItem,
-    index: number,
-    circles: Selection<any, any, any, any>
-  ) {
+  private handleClick(d: IArtistListDataItem, index: number, circles: Selection<any, any, any, any>) {
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     const textValue = textNode.text();
