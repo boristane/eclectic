@@ -1,16 +1,16 @@
 import * as d3 from "d3";
 
-import { IMargin } from "../types";
+import { IMargin, ISpotifyTrack } from "../types";
 import { Selection } from "d3";
 import colors from "./colors";
 import { playOrPause } from "./player";
 
-export default class Network {
+export default class AgesChart {
   width: number;
   height: number;
   margin: IMargin;
-  xScale;
-  data: { links: any[]; nodes: any[] };
+  yScale;
+  data: { year: number; tracks: ISpotifyTrack[] }[];
   private svg: Selection<SVGSVGElement, {}, HTMLElement, any>;
   private radius: number;
   private fontSize: number;
@@ -20,15 +20,18 @@ export default class Network {
     this.height = properties.height;
     this.margin = properties.margin;
     this.data = properties.data;
-    this.data.nodes.sort((a, b) => b.numLinks - a.numLinks);
-    this.radius = Math.min(this.width, this.height) / 60;
+    this.data.sort((a, b) => b.year - a.year);
+
+    const maxPerLine = Math.max(...this.data.map(d => d.tracks.length));
+    const maxPerCol = this.data.length;
+    this.radius = Math.min(this.width, this.height) / (1.5 * Math.max(maxPerCol, maxPerLine));
     this.fontSize = this.radius / 4;
   }
 
   public make(selector: string): void {
     this.buildSVG(selector);
-    this.generateNetwork();
     this.generateLabels();
+    this.generateAgesGroups();
   }
 
   private generateContainerGroups(): void {
@@ -45,7 +48,7 @@ export default class Network {
       this.svg = d3
         .select(selector)
         .append("svg")
-        .classed("network-chart", true);
+        .classed("ages_chart", true);
       this.generateContainerGroups();
     }
     this.svg.attr("width", this.width).attr("height", this.height);
@@ -99,14 +102,43 @@ export default class Network {
     textNode.style("fill", d => (newTextValue === "▶" ? colors.white : colors.spotifyGreen));
   }
 
-  private generateNetwork(): void {
+  private generateAgesGroups(): void {
+    const data: { track: ISpotifyTrack; year: number }[] = [];
+    this.data.forEach(d => {
+      d.tracks.forEach(track => {
+        data.push({ track, year: d.year });
+      });
+    });
+
+    let circlesGroup = this.svg
+      .select(".chart-group")
+      .selectAll(".artist")
+      .data(data);
+
+    const years = this.svg
+      .select(".chart-group")
+      .selectAll(".year")
+      .data(this.data);
+
     const fillImages = this.svg
       .select(".chart-group")
       .selectAll(".image-fill")
-      .data(this.data.nodes);
-
-    const img_id = d => `img_network_${d.i}`;
-    const img_url = d => `url(#img_network_${d.i})`;
+      .data(data);
+    let currentYear;
+    let count = 0;
+    const img_id = d => `img_ages_group_${d.track.id}`;
+    const img_url = d => `url(#img_ages_group_${d.track.id})`;
+    const xPos = (d, i) => {
+      if (d.year != currentYear) {
+        currentYear = d.year;
+        count = 0;
+      }
+      count += 1;
+      return (
+        (2 * this.radius + this.margin.left) * (count - 1) + 10 * this.fontSize + this.radius * 1.1
+      );
+    };
+    const yPos = d => this.yScale(d.year);
 
     fillImages
       .enter()
@@ -121,83 +153,44 @@ export default class Network {
       .attr("y", 0)
       .attr("width", 2 * this.radius)
       .attr("height", 2 * this.radius)
-      .attr("xlink:href", d => d.image);
+      .attr("xlink:href", d => d.track.album.images[0].url);
 
-    const drag = simulation => {
-      function dragstarted(d) {
-        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      }
-
-      function dragged(d) {
-        d.fx = d3.event.x;
-        d.fy = d3.event.y;
-      }
-
-      function dragended(d) {
-        if (!d3.event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      }
-
-      return d3
-        .drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended);
-    };
-
-    const simulation = d3
-      .forceSimulation(this.data.nodes)
-      .force(
-        "link",
-        d3
-          .forceLink(this.data.links)
-          // @ts-ignore
-          .id(d => d.id)
-          .distance(this.radius * 6)
-      )
-      .force("collision", d3.forceCollide(this.radius * 3))
-      .force("center", d3.forceManyBody().strength(-100))
-      .force("center", d3.forceCenter(this.width / 2, this.height / 2));
-
-    const link = this.svg
-      .select(".chart-group")
-      .append("g")
-      .attr("stroke", colors.white)
-      .attr("stroke-opacity", 0.6)
-      .selectAll("line")
-      .data(this.data.links)
-      .join("line")
-      .attr("stroke-width", d => 2);
-
-    let nodeGroup = this.svg
-      .select(".chart-group")
-      .selectAll(".artists")
-      .data(this.data.nodes);
-
-    nodeGroup = nodeGroup
+    circlesGroup = circlesGroup
       .enter()
       .append("g")
       .on("mouseout", this.handleMouseOut.bind(this))
       .on("mouseover", this.handleMouseOver.bind(this))
-      .on("click", this.handleClick.bind(this))
-      .call(drag(simulation));
+      .on("click", this.handleClick.bind(this));
 
-    const node = nodeGroup
+    circlesGroup
       .append("circle")
       .attr("r", this.radius)
+      .attr("cx", xPos)
+      .attr("cy", yPos)
       .style("fill", img_url)
-      .style("stroke", colors.white)
-      .style("stroke-width", 2)
-      .classed("artists", true)
-      .style("cursor", "pointer");
+      .style("stroke", "white")
+      .style("stroke-width", this.fontSize / 4)
+      .classed("artists", true);
 
-    nodeGroup.append("title").text(d => `#${d.rank} ${d.id}`);
+    circlesGroup.append("title").text(d => `#${d.year} ${d.track.name}`);
 
-    const playButton = nodeGroup
+    years
+      .enter()
       .append("text")
+      .attr("x", 0)
+      .attr("y", d => this.yScale(d.year))
+      .text(d => `${d.year}`)
+      .style("text-anchor", "start")
+      .style("dominant-baseline", "central")
+      .style("font-size", () => `${2.5 * this.fontSize}px`)
+      .attr("fill", "white")
+      .style("font-weight", "bold")
+      .classed("year", true);
+
+    circlesGroup
+      .append("text")
+      .attr("x", xPos)
+      .attr("y", yPos)
       .text(d => "▶")
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
@@ -207,31 +200,40 @@ export default class Network {
       .attr("fill", "white")
       .style("font-weight", "bold")
       .classed("play-button", true);
-
-    simulation.on("tick", () => {
-      link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
-
-      node.attr("cx", d => d.x).attr("cy", d => d.y);
-      playButton.attr("x", d => d.x).attr("y", d => d.y);
-    });
   }
 
   private generateLabels() {
     const titleLabel = this.svg.append("g").classed(".title-label-group", true);
-
     titleLabel
       .append("text")
       .attr("x", 20)
       .attr("y", 60)
-      .text("Your Top 50 Artists Network")
+      .text("Your Top 50 Songs Release Timeline")
       .style("text-anchor", "start")
       .style("dominant-baseline", "central")
-      .style("font-size", () => `${10 * this.fontSize}px`)
+      .style("font-size", () => `${2 * this.fontSize}px`)
       .attr("fill", "white")
       .classed("chart-title", true);
+
+    const top = 3 * this.radius;
+    const bottom = this.height - top;
+
+    this.yScale = d3
+      .scaleLinear()
+      .rangeRound([top, bottom])
+      .domain([
+        Math.min(...this.data.map(data => data.year)),
+        Math.max(...this.data.map(data => data.year))
+      ]);
+
+    const yLabel = this.svg.append("g").classed(".y-label-group", true);
+    const lineWidth = 2;
+    yLabel
+      .append("rect")
+      .attr("height", this.height - 2 * top)
+      .attr("width", lineWidth)
+      .attr("y", top)
+      .style("fill", colors.white)
+      .attr("x", 6.5 * this.fontSize);
   }
 }

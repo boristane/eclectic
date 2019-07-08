@@ -9,6 +9,7 @@ import { saveToDB } from "./users";
 require("dotenv").config();
 
 const axiosInstance = axios.create({ baseURL: "https://api.spotify.com/v1" });
+const term = "long_term";
 
 const clientId = process.env["SPOTIFY_CLIENT_ID"];
 const clientSecret = process.env["SPOTIFY_CLIENT_SECRET"];
@@ -104,6 +105,7 @@ export async function doIt(req: Request, res: Response) {
     const connections = await findConnections(token, topArtists);
     const topTracks = (await getTopTracks(token)).items;
     const explicit = getExplicit(topTracks);
+    const tracksAgesClusters = clusterTracksAges(topTracks);
     saveToDB(user.id, user.birthdate, user.country, user.followers.total);
 
     res.status(200).json({
@@ -112,7 +114,8 @@ export async function doIt(req: Request, res: Response) {
       connections,
       topTracks,
       explicit,
-      user
+      user,
+      tracksAgesClusters
     });
   } catch (err) {
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
@@ -120,7 +123,7 @@ export async function doIt(req: Request, res: Response) {
 }
 
 async function getTopArtists(token: string, country: string): Promise<IArtistListDataItem[]> {
-  const response = await axiosInstance.get("/me/top/artists/?time_range=short_term&limit=50", {
+  const response = await axiosInstance.get(`/me/top/artists/?time_range=${term}&limit=50`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -158,7 +161,7 @@ async function getArtistTopTracks(
 }
 
 async function getTopTracks(token: string): Promise<{ items: ISpotifyTrack[] }> {
-  const response = await axiosInstance.get("/me/top/tracks", {
+  const response = await axiosInstance.get(`/me/top/tracks/?time_range=${term}&limit=50`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -235,6 +238,23 @@ function clusterGenres(
     });
   });
   return cluster;
+}
+
+function clusterTracksAges(tracks: ISpotifyTrack[]) {
+  const result: { year: number; tracks: ISpotifyTrack[] }[] = [];
+  tracks.forEach(track => {
+    const year = Number(track.album.release_date.split("-")[0]);
+    const currentYearObject = result.find(o => o.year === year);
+    if (!currentYearObject) {
+      result.push({
+        year,
+        tracks: [track]
+      });
+    } else {
+      currentYearObject.tracks.push(track);
+    }
+  });
+  return result;
 }
 
 function getExplicit(tracks: any[]): { explicit: number; total: number } {

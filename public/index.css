@@ -42,6 +42,13 @@ body {
   text-align: center;
 }
 
+.ages-container {
+  width: 100%;
+  background: linear-gradient(to bottom right, #151b16, #333250, #96687d, #8c989e);
+  background: -webkit-linear-gradient(to bottom right, #151b16, #333250, #96687d, #8c989e);
+  text-align: center;
+}
+
 .artists:hover {
   cursor: pointer;
 }

@@ -5,6 +5,7 @@ import { IMargin, IArtistListDataItem, IArtistsListProps } from "../src/types";
 import MainstreamMeter from "../src/front/mainstream-meter";
 import Network from "../src/front/network";
 import GenreChart from "../src/front/genres";
+import AgesChart from "../src/front/age";
 
 const margin: IMargin = {
   top: 10,
@@ -49,6 +50,17 @@ function displayNetwork(data) {
   chart.make(".network-container");
 }
 
+function displayAgesClusters(data) {
+  const mapProperties = {
+    width: 0.95 * document.body.clientWidth,
+    height: h,
+    margin,
+    data
+  };
+  const chart = new AgesChart(mapProperties);
+  chart.make(".ages-container");
+}
+
 function displayGenres(data) {
   const duration = 10000;
   const mapProperties = {
@@ -60,9 +72,9 @@ function displayGenres(data) {
   };
   const chart = new GenreChart(mapProperties);
   chart.make(".genres-container");
-  setInterval(() => {
-    chart.update(data);
-  }, duration);
+  // setInterval(() => {
+  //   chart.update(data);
+  // }, duration);
 }
 
 async function handleClick(e) {
@@ -79,6 +91,7 @@ async function handleClick(e) {
   displayMainstreamMeter(topArtists.filter(artist => artist.rank <= 20));
   displayNetwork(data.connections);
   displayGenres(data.genreClusters);
+  displayAgesClusters(data.tracksAgesClusters);
 }
 const main = () => {
   const button = document.getElementById("but");
