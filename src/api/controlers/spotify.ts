@@ -9,7 +9,7 @@ import { saveToDB } from "./users";
 require("dotenv").config();
 
 const axiosInstance = axios.create({ baseURL: "https://api.spotify.com/v1" });
-const term = "medium_term";
+const term = "long_term";
 
 const clientId = process.env["SPOTIFY_CLIENT_ID"];
 const clientSecret = process.env["SPOTIFY_CLIENT_SECRET"];
@@ -17,6 +17,12 @@ const redirectUri = process.env["SPOTIFY_REDIRECT_URI"];
 const dialog = process.env["SPOTIFY_DIALOG"] === "true" ? true : false;
 
 const stateKey = "spotify_auth_state";
+
+function getPeriod(term) {
+  if (term === "medium_term") return "~6 Months";
+  if (term === "short_term") return "~1 month";
+  if (term === "long_term") return "All time";
+}
 
 export function login(req: Request, res: Response) {
   const state = generateRandomString(16);
@@ -115,7 +121,11 @@ export async function doIt(req: Request, res: Response) {
       topTracks,
       explicit,
       user,
-      tracksAgesClusters
+      tracksAgesClusters,
+      period: getPeriod(term),
+      score: 72.5,
+      musicGenreScore: 84,
+      eclectixPercentage: 30
     });
   } catch (err) {
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
@@ -191,6 +201,17 @@ async function findConnections(
   const promises = artists.map(artist => getConnections(token, artist));
   const resolves = await Promise.all(promises);
   resolves.forEach(resolve => {
+    nodes.push({
+      id: resolve.artist.name,
+      image: resolve.artist.image,
+      i: resolve.artist.id,
+      group: resolve.artist.genres[0],
+      track: resolve.artist.track,
+      rank: resolve.artist.rank,
+      numLinks: 0
+    });
+  });
+  resolves.forEach((resolve, i) => {
     const relatedArtists = resolve.connections;
     const relatedArtistsIDs = relatedArtists.map(artist => artist.id);
     const commonIDs = artistsIDs.filter(value => relatedArtistsIDs.includes(value));
@@ -204,15 +225,7 @@ async function findConnections(
         }
       });
     }
-    nodes.push({
-      id: resolve.artist.name,
-      image: resolve.artist.image,
-      i: resolve.artist.id,
-      group: resolve.artist.genres[0],
-      track: resolve.artist.track,
-      rank: resolve.artist.rank,
-      numLinks: commonIDs.length
-    });
+    nodes[i].numLinks += commonIDs.length;
   });
   return { links, nodes };
 }

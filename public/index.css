@@ -16,6 +16,14 @@ body {
   font-family: "Dosis", sans-serif;
 }
 
+.bold {
+  font-weight: bold;
+}
+
+.italic {
+  font-style: italic;
+}
+
 .top-artists-list-container {
   background-image: linear-gradient(to bottom right, #372b38, #6f4275, #754257, #581313);
   width: 100%;
@@ -44,9 +52,51 @@ body {
 
 .ages-container {
   width: 100%;
-  background: linear-gradient(to bottom left, #8c989e, #356e85, #ac8961, #060c20);
+  background: linear-gradient(to bottom left, #8abfda, #358571, #314b4b, #060c20);
   background: -webkit-linear-gradient(to bottom right, #8c989e, #853585, #266335, #061720);
   text-align: center;
+}
+
+.report-container {
+  width: 100%;
+  background: linear-gradient(to bottom left, #020202, #331b1b, #581313);
+  background: -webkit-linear-gradient(to bottom right, #020202, #331b1b, #581313);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.report-internal-container {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  width: 70%;
+  margin: auto;
+  color: white;
+  font-size: 1.5em;
+}
+
+#user-photo {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: solid 2px white;
+}
+
+#score {
+  font-size: 5em;
+  color: #cca9a9;
+}
+
+.report-container .left-panel {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.report-container p {
+  margin: 20px 0;
 }
 
 .artists:hover {

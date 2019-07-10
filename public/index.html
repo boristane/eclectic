@@ -11,14 +11,14 @@
     <div style="display: none" controls>
       <audio id="player" controls crossorigin="anonymous" loop></audio>
     </div>
-    <div style="position: absolute; top: 10px; left: 10px;">
+    <div style="position: absolute; top: 10px; left: 10px; z-index: 100">
       sup dude
       <button id="but">show fav artists</button>
       <a href="/login">login with spotify</a>
     </div>
     <div id="visual-player">
       <div id="visual-player-photo-container">
-        <img src="" alt="song-cover" id="visual-player-photo" width="50px" />
+        <img src="white.svg" alt="song-cover" id="visual-player-photo" width="50px" />
         <div id="visuaisation-bars-container">
           <div class="visualasation-bar"></div>
           <div class="visualasation-bar"></div>
@@ -26,8 +26,8 @@
         </div>
       </div>
       <div>
-        <div id="visual-player-title" class="visual-player-text"></div>
-        <div id="visual-player-artist" class="visual-player-text"></div>
+        <div id="visual-player-title" class="visual-player-text">-</div>
+        <div id="visual-player-artist" class="visual-player-text">-</div>
       </div>
     </div>
 
@@ -52,6 +52,56 @@
     <section id="section4">
       <div class="ages-container"></div>
       <a href="#section5"><span></span>Scroll</a>
+    </section>
+    <section id="section5">
+      <div class="report-container">
+        <div class="report-internal-container">
+          <div class="left-panel">
+            <div>
+              <img src="placeholder.png" alt="me" id="user-photo" />
+            </div>
+            <div id="username"></div>
+            <div id="score" class="bold"></div>
+          </div>
+          <div class="right-panel">
+            <h1>Your Eclectix Report - <span id="period"></span></h1>
+            <div>
+              <p>
+                <span id="name"></span>, your Eclectix Score is
+                <span id="eclectix-score" class="bold"></span>, ranking you in the top
+                <span id="eclectix-percentage"></span>% of our users.
+              </p>
+              <p>
+                Based on your top 20 artists, your music taste is
+                <span id="music-taste-category" class="bold"></span> (<span id="popularity"></span>%
+                popular).
+              </p>
+              <p>
+                <span id="network-center" class="italic"></span> is the center of your top 50
+                artists network, with <span id="max-connections"></span> connections.
+                <span id="lone-nodes" class="italic"></span> on the edge of your musical landscape,
+                with no connections. Artists from your top 50 are in average connected to
+                <span id="average-connections"></span> other artists in your top 50.
+              </p>
+              <p>
+                Your favourite music genre based on your top 50 artists is
+                <span id="favourite-genre"></span>, followed by
+                <span id="second-favourite-genre"></span> and
+                <span id="third-favourite-genre"></span>. In total, your top 50 artists perform
+                <span id="total-number-genres"></span> distinct music genres, ranking you among the
+                top <span id="music-genres-score"></span>% of our users.
+              </p>
+              <p>
+                Your top 50 tracks are in average <span id="average-track-age"></span> years old,
+                with <span id="oldest-track-title" class="italic"></span> by
+                <span id="oldest-track-artist" class="italic"></span> being the oldest and
+                <span id="newest-track-title" class="italic"></span> by
+                <span id="newest-track-artist" class="italic"></span> the most recent.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
     <script src="index.ts"></script>
   </body>
