@@ -12,8 +12,6 @@
       <audio id="player" controls crossorigin="anonymous" loop></audio>
     </div>
     <div style="position: absolute; top: 10px; left: 10px; z-index: 100">
-      sup dude
-      <button id="but">show fav artists</button>
       <a href="/login">login with spotify</a>
     </div>
     <div id="visual-player">
@@ -30,11 +28,24 @@
         <div id="visual-player-artist" class="visual-player-text">-</div>
       </div>
     </div>
-
+    <section id="section0">
+      <div class="intro-container">
+        <div class="intro-internal-container">
+          <p>Hi <span id="user"></span>, select the time period to analyse !</p>
+          <div style="text-align: center; margin-top: 5vh">
+            <button class="term-buttons" id="all-time-button">All Time</button>
+            <button class="term-buttons" id="six-months-button">6 Months</button>
+            <button class="term-buttons" id="one-month-button">1 Month</button>
+          </div>
+        </div>
+        <a class="scroll" href="#section1"><span></span>Scroll</a>
+      </div>
+    </section>
     <section id="section1">
       <div class="top-artists-list-container"></div>
       <div class="mainstream-meter-container"></div>
       <a
+        class="scroll"
         href="#section2"
         style="-webkit-transform: translate(0, -50%);
       transform: translate(0, -50%);"
@@ -43,15 +54,15 @@
     </section>
     <section id="section2">
       <div class="network-container"></div>
-      <a href="#section3"><span></span>Scroll</a>
+      <a class="scroll" href="#section3"><span></span>Scroll</a>
     </section>
     <section id="section3">
       <div class="genres-container"></div>
-      <a href="#section4"><span></span>Scroll</a>
+      <a class="scroll" href="#section4"><span></span>Scroll</a>
     </section>
     <section id="section4">
       <div class="ages-container"></div>
-      <a href="#section5"><span></span>Scroll</a>
+      <a class="scroll" href="#section5"><span></span>Scroll</a>
     </section>
     <section id="section5">
       <div class="report-container">

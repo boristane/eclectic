@@ -1,4 +1,4 @@
-import { doIt, getToken, login, refreshToken } from "./controlers/spotify";
+import { doIt, getToken, login, refreshToken, getUser } from "./controlers/spotify";
 
 import cookieParser from "cookie-parser";
 import express from "express";
@@ -31,5 +31,6 @@ app.get("/login", login);
 app.get("/get-token", getToken);
 app.get("/refresh-token", refreshToken);
 app.get("/top-artists", doIt);
+app.get("/me", getUser);
 
 export default app;

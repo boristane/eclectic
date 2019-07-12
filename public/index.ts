@@ -26,6 +26,7 @@ function displayTopArtists(data: IArtistListDataItem[]) {
     data
   };
   const chart = new ArtistList(mapProperties);
+  document.querySelector(".top-artists-list-container").innerHTML = "";
   chart.make(".top-artists-list-container");
 }
 
@@ -37,6 +38,7 @@ function displayMainstreamMeter(data: IArtistListDataItem[]) {
     data
   };
   const chart = new MainstreamMeter(mapProperties);
+  document.querySelector(".mainstream-meter-container").innerHTML = "";
   chart.make(".mainstream-meter-container");
 }
 
@@ -48,6 +50,7 @@ function displayNetwork(data) {
     data
   };
   const chart = new Network(mapProperties);
+  document.querySelector(".network-container").innerHTML = "";
   chart.make(".network-container");
 }
 
@@ -59,6 +62,7 @@ function displayAgesClusters(data) {
     data
   };
   const chart = new AgesChart(mapProperties);
+  document.querySelector(".ages-container").innerHTML = "";
   chart.make(".ages-container");
 }
 
@@ -72,6 +76,7 @@ function displayGenres(data) {
     duration
   };
   const chart = new GenreChart(mapProperties);
+  document.querySelector(".genres-container").innerHTML = "";
   chart.make(".genres-container");
   setInterval(() => {
     chart.update(data);
@@ -180,26 +185,48 @@ function populateReport(data) {
     tracks[tracks.length - 1].track.artists[0].name;
 }
 
-async function handleClick(e) {
+async function getToken() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get("code");
   const state = params.get("state");
   const { access_token: token } = (await axios.get(`/get-token/?code=${code}&state=${state}`)).data;
-  const { data } = await axios.get(`/top-artists/?token=${token}`);
+  return token;
+}
 
-  console.log(data);
-  const { topArtists } = data;
-  console.log(topArtists);
-  displayTopArtists(topArtists.filter(artist => artist.rank <= 10));
-  displayMainstreamMeter(topArtists.filter(artist => artist.rank <= 20));
+function getTerm(index: number) {
+  if (index === 0) return "long_term";
+  if (index === 1) return "medium_term";
+  if (index === 2) return "short_term";
+}
+
+async function handleClick(index: number) {
+  const term = getTerm(index);
+  const { data } = await axios.get(`/top-artists/?token=${token}&term=${term}`);
+  displayTopArtists(data.topArtists.filter(artist => artist.rank <= 10));
+  displayMainstreamMeter(data.topArtists.filter(artist => artist.rank <= 20));
   displayNetwork(data.connections);
   displayGenres(data.genreClusters);
   displayAgesClusters(data.tracksAgesClusters);
   populateReport(data);
+  document.querySelector("#section1").scrollIntoView({
+    behavior: "smooth"
+  });
 }
-const main = () => {
-  const button = document.getElementById("but");
-  button.addEventListener("click", handleClick);
-};
+let token: string;
+async function main() {
+  token = await getToken();
+  const { data: user } = await axios.get(`/me/?token=${token}`);
+  document.getElementById("user").textContent = user.display_name.split(" ")[0];
+  const buttons = document.querySelectorAll(".term-buttons");
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", async () => {
+      await handleClick(index);
+      document
+        .querySelectorAll<HTMLDivElement>(".scroll")
+        .forEach(scroller => (scroller.style.display = "block"));
+      document.querySelector<HTMLDivElement>(".report-container").style.display = "flex";
+    });
+  });
+}
 
 main();

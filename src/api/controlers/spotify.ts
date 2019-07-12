@@ -9,7 +9,6 @@ import { saveToDB } from "./users";
 require("dotenv").config();
 
 const axiosInstance = axios.create({ baseURL: "https://api.spotify.com/v1" });
-const term = "long_term";
 
 const clientId = process.env["SPOTIFY_CLIENT_ID"];
 const clientSecret = process.env["SPOTIFY_CLIENT_SECRET"];
@@ -102,14 +101,14 @@ export async function refreshToken(req: Request, res: Response) {
 }
 
 export async function doIt(req: Request, res: Response) {
-  const { token } = req.query;
+  const { token, term } = req.query;
   try {
     const user = await getUserProfile(token);
     const country = user.country;
-    const topArtists: IArtistListDataItem[] = await getTopArtists(token, country);
+    const topArtists: IArtistListDataItem[] = await getTopArtists(token, country, term);
     const genreClusters = clusterGenres(topArtists);
     const connections = await findConnections(token, topArtists);
-    const topTracks = (await getTopTracks(token)).items;
+    const topTracks = (await getTopTracks(token, term)).items;
     const explicit = getExplicit(topTracks);
     const tracksAgesClusters = clusterTracksAges(topTracks);
     saveToDB(user.product, user.birthdate, user.country, user.followers.total);
@@ -132,7 +131,11 @@ export async function doIt(req: Request, res: Response) {
   }
 }
 
-async function getTopArtists(token: string, country: string): Promise<IArtistListDataItem[]> {
+async function getTopArtists(
+  token: string,
+  country: string,
+  term: string
+): Promise<IArtistListDataItem[]> {
   const response = await axiosInstance.get(`/me/top/artists/?time_range=${term}&limit=50`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -170,7 +173,7 @@ async function getArtistTopTracks(
   return response.data;
 }
 
-async function getTopTracks(token: string): Promise<{ items: ISpotifyTrack[] }> {
+async function getTopTracks(token: string, term: string): Promise<{ items: ISpotifyTrack[] }> {
   const response = await axiosInstance.get(`/me/top/tracks/?time_range=${term}&limit=50`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -283,4 +286,15 @@ async function getUserProfile(token: string): Promise<ISpotifyUser> {
     }
   });
   return response.data;
+}
+
+export async function getUser(req: Request, res: Response) {
+  const { token } = req.query;
+  try {
+    const user = await getUserProfile(token);
+
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ error: "Unexpected error.", err: err.stack });
+  }
 }

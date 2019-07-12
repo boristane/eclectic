@@ -24,6 +24,43 @@ body {
   font-style: italic;
 }
 
+.intro-container {
+  width: 100%;
+  background: linear-gradient(to bottom right, #ff8f7a 0%, #fd4928 100%);
+  background: -webkit-linear-gradient(to bottom right, #ff8f7a 0%, #fd4928 100%);
+  height: 100vh;
+}
+
+.intro-internal-container {
+  width: 70%;
+  margin: auto;
+  color: white;
+  font-size: 3vw;
+  padding-top: 25vh;
+}
+
+.intro-container button {
+  font-family: "Dosis", sans-serif;
+  background-color: white; /* Green */
+  border: solid 2px grey;
+  border-radius: 100px;
+  color: black;
+  width: 238px;
+  height: 60px;
+  text-align: center;
+  display: inline-block;
+  font-size: 2vh;
+  cursor: pointer;
+  margin: 15px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.intro-container button:hover {
+  border: black solid 2px;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 12px 40px 0 rgba(0, 0, 0, 0.19);
+}
+
 .top-artists-list-container {
   background-image: linear-gradient(to bottom right, #372b38, #6f4275, #754257, #581313);
   width: 100%;
@@ -38,8 +75,8 @@ body {
 
 .network-container {
   width: 100%;
-  background: linear-gradient(to bottom right, #151b16, #325037, #689670, #e2e4c4);
-  background: -webkit-linear-gradient(to bottom right, #151b16, #325037, #689670, #e2e4c4);
+  background: linear-gradient(to bottom right, #66d68c 0%, #1db952 100%);
+  background: -webkit-linear-gradient(to bottom right, #66d68c 0%, #1db952 100%);
   text-align: center;
 }
 
@@ -52,19 +89,20 @@ body {
 
 .ages-container {
   width: 100%;
-  background: linear-gradient(to bottom left, #8abfda, #358571, #314b4b, #060c20);
-  background: -webkit-linear-gradient(to bottom right, #8c989e, #853585, #266335, #061720);
+  background: linear-gradient(to bottom left, #7e66d6 0%, #1d9ab9 100%);
+  background: -webkit-linear-gradient(to bottom right, #7e66d6 0%, #1d9ab9 100%);
   text-align: center;
 }
 
 .report-container {
   width: 100%;
-  background: linear-gradient(to bottom left, #020202, #331b1b, #581313);
-  background: -webkit-linear-gradient(to bottom right, #020202, #331b1b, #581313);
+  background: linear-gradient(to bottom left, #d4d666 0%, #b9561d 100%);
+  background: -webkit-linear-gradient(to bottom right, #7e66d6 0%, #1d9ab9 100%);
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  display: none;
 }
 
 .report-internal-container {
@@ -73,7 +111,7 @@ body {
   width: 70%;
   margin: auto;
   color: white;
-  font-size: 1.5em;
+  font-size: 1.5vw;
 }
 
 #user-photo {
@@ -84,8 +122,8 @@ body {
 }
 
 #score {
-  font-size: 5em;
-  color: #cca9a9;
+  font-size: 5vw;
+  color: white;
 }
 
 .report-container .left-panel {
@@ -188,7 +226,7 @@ section a {
   letter-spacing: 0.1em;
   text-decoration: none;
   transition: opacity 0.3s;
-  opacity: 0.1;
+  opacity: 0.5;
 }
 section a:hover {
   opacity: 0.8;
@@ -253,4 +291,8 @@ section a span::before {
   100% {
     opacity: 0;
   }
+}
+
+.scroll {
+  display: none;
 }
