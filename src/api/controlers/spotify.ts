@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import axios from "axios";
 import { generateRandomString } from "../utils";
 import qs from "qs";
-import { saveToDB } from "./users";
+import { saveToDB, getScorePercentage } from "./users";
 
 require("dotenv").config();
 
@@ -113,6 +113,7 @@ export async function doIt(req: Request, res: Response) {
     const tracksAgesClusters = clusterTracksAges(topTracks);
     const score = getScore(connections, genreClusters, tracksAgesClusters, topArtists);
     saveToDB(user.product, user.birthdate, user.country, user.followers.total, score, term);
+    const eclectixPercentage = await getScorePercentage(score);
 
     res.status(200).json({
       genreClusters,
@@ -124,7 +125,7 @@ export async function doIt(req: Request, res: Response) {
       tracksAgesClusters,
       period: getPeriod(term),
       score,
-      eclectixPercentage: 30
+      eclectixPercentage
     });
   } catch (err) {
     res.status(500).json({ error: "Unexpected error.", err: err.stack });

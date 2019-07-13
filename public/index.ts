@@ -140,7 +140,7 @@ function populateReport(data) {
   document.getElementById("period").textContent = data.period;
   document.getElementById("name").textContent = data.user.display_name.split(" ")[0];
   document.getElementById("eclectix-score").textContent = data.score.toFixed(1);
-  document.getElementById("eclectix-percentage").textContent = data.eclectixPercentage;
+  document.getElementById("eclectix-percentage").textContent = data.eclectixPercentage.toFixed(0);
 
   const meanPopularity = average(data.topArtists.map(artist => artist.popularity)).toFixed(0);
   const category = getCategory(meanPopularity);
@@ -171,7 +171,6 @@ function populateReport(data) {
   document.getElementById("third-favourite-genre").textContent =
     data.genreClusters[numGenres - 3].genre;
   document.getElementById("total-number-genres").textContent = numGenres;
-  document.getElementById("music-genres-score").textContent = data.musicGenreScore;
 
   const tracks = getTracksWithDate(data.tracksAgesClusters);
   document.getElementById("average-track-age").textContent = String(

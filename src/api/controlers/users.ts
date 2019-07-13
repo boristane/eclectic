@@ -35,3 +35,32 @@ export async function saveToDB(
 ) {
   await create(product, birthdate, country, followers, score, term);
 }
+
+export async function getScorePercentage(score: number) {
+  const users = await User.find({ score: { $gte: 0 } }).exec();
+  const step = 10;
+  const bins: { value: number; numOccurences: number }[] = [];
+  users.forEach(user => {
+    const bin = bins.find(b => Math.abs(user.score - b.value) <= step);
+    if (bin) bin.numOccurences += 1;
+    else {
+      bins.push({
+        value: ceilToNextPercent(user.score, step),
+        numOccurences: 1
+      });
+    }
+  });
+  bins.sort((a, b) => a.value - b.value);
+  const total = users.length;
+  const current = bins
+    .filter(bin => bin.value >= score)
+    .reduce((acc, curr) => acc + curr.numOccurences, 0);
+  let percentage = current / total;
+  if (percentage === 0) percentage = 0.01;
+  if (percentage === 1) percentage = 0.99;
+  return percentage * 100;
+}
+
+function ceilToNextPercent(num, p) {
+  return Math.ceil(num / p) * p;
+}
