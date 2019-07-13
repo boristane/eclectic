@@ -7,7 +7,9 @@ const UserSchema: Schema = new Schema({
   created: { type: Date },
   updated: { type: Date },
   product: String,
-  followers: Number
+  followers: Number,
+  score: Number,
+  term: String
 });
 
 export interface IUser extends Document {
@@ -18,6 +20,8 @@ export interface IUser extends Document {
   updated: Date;
   product: string;
   followers: number;
+  score: number;
+  term: string;
 }
 
 export default mongoose.model<IUser>("User", UserSchema);

@@ -5,7 +5,9 @@ export async function create(
   product: string,
   birthdate: string,
   country: string,
-  followers: number
+  followers: number,
+  score: number,
+  term: string
 ) {
   const created = new Date();
   const updated = created;
@@ -16,7 +18,9 @@ export async function create(
     country,
     created,
     updated,
-    followers
+    followers,
+    score,
+    term
   });
   await user.save();
 }
@@ -25,7 +29,9 @@ export async function saveToDB(
   product: string,
   birthdate: string,
   country: string,
-  followers: number
+  followers: number,
+  score: number,
+  term: string
 ) {
-  await create(product, birthdate, country, followers);
+  await create(product, birthdate, country, followers, score, term);
 }

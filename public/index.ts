@@ -78,9 +78,9 @@ function displayGenres(data) {
   const chart = new GenreChart(mapProperties);
   document.querySelector(".genres-container").innerHTML = "";
   chart.make(".genres-container");
-  setInterval(() => {
-    chart.update(data);
-  }, duration);
+  // setInterval(() => {
+  //   chart.update(data);
+  // }, duration);
 }
 
 function average(arr: number[]) {
@@ -136,10 +136,10 @@ function populateReport(data) {
     ? data.user.images[0].url
     : "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
   document.getElementById("username").textContent = data.user.display_name;
-  document.getElementById("score").textContent = data.score;
+  document.getElementById("score").textContent = data.score.toFixed(1);
   document.getElementById("period").textContent = data.period;
   document.getElementById("name").textContent = data.user.display_name.split(" ")[0];
-  document.getElementById("eclectix-score").textContent = data.score;
+  document.getElementById("eclectix-score").textContent = data.score.toFixed(1);
   document.getElementById("eclectix-percentage").textContent = data.eclectixPercentage;
 
   const meanPopularity = average(data.topArtists.map(artist => artist.popularity)).toFixed(0);

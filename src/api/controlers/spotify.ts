@@ -111,7 +111,8 @@ export async function doIt(req: Request, res: Response) {
     const topTracks = (await getTopTracks(token, term)).items;
     const explicit = getExplicit(topTracks);
     const tracksAgesClusters = clusterTracksAges(topTracks);
-    saveToDB(user.product, user.birthdate, user.country, user.followers.total);
+    const score = getScore(connections, genreClusters, tracksAgesClusters, topArtists);
+    saveToDB(user.product, user.birthdate, user.country, user.followers.total, score, term);
 
     res.status(200).json({
       genreClusters,
@@ -122,8 +123,7 @@ export async function doIt(req: Request, res: Response) {
       user,
       tracksAgesClusters,
       period: getPeriod(term),
-      score: 72.5,
-      musicGenreScore: 84,
+      score,
       eclectixPercentage: 30
     });
   } catch (err) {
@@ -297,4 +297,21 @@ export async function getUser(req: Request, res: Response) {
   } catch (err) {
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
   }
+}
+
+function getScore(connections, genreClusters, tracksAgesClusters, topArtists) {
+  const numLoneNodes = connections.nodes.filter(node => node.numLinks === 0).length;
+  const meanConnections = average(connections.nodes.map(node => node.numLinks));
+  const numGenres = genreClusters.length;
+  const numGenresWithCountOne = genreClusters.filter(genre => genre.count === 1).length;
+  const maxNumSongsPerYear = Math.max(...tracksAgesClusters.map(cluster => cluster.tracks.length));
+  const meanPopularity = average(topArtists.map(artist => artist.popularity));
+  const score =
+    (100 * (numLoneNodes + numGenres + numGenresWithCountOne)) /
+    (maxNumSongsPerYear + meanPopularity + meanConnections);
+  return score;
+}
+
+function average(arr: number[]) {
+  return arr.reduce((p, c) => p + c, 0) / arr.length;
 }
