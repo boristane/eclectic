@@ -1,7 +1,8 @@
 import { doIt, getToken, login, refreshToken, getUser } from "./controlers/spotify";
 
 import cookieParser from "cookie-parser";
-import express from "express";
+import express, { Response, Request } from "express";
+import path from "path";
 import mongoose from "mongoose";
 
 const mongoDBURI = `mongodb+srv://eclectic:${
@@ -32,5 +33,8 @@ app.get("/get-token", getToken);
 app.get("/refresh-token", refreshToken);
 app.get("/top-artists", doIt);
 app.get("/me", getUser);
+app.get("/you", (req: Request, res: Response) => {
+  res.status(200).sendFile(path.join(__dirname + "/../../dist/me.html"));
+});
 
 export default app;

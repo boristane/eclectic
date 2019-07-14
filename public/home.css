@@ -1,0 +1,49 @@
+@import url("https://fonts.googleapis.com/css?family=Dosis&display=swap");
+
+.container {
+  width: 70%;
+  margin: auto;
+  padding-top: 15vh;
+  font-family: "Dosis", sans-serif;
+}
+
+#primaryButton {
+  font-family: "Dosis", sans-serif;
+  color: white;
+  font-weight: bold;
+  background-color: #1db91d;
+  border-radius: 100px;
+  width: 238px;
+  padding: 5px;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease-out;
+}
+
+#primaryButton:hover {
+  background-color: #fa6b52;
+}
+
+.me {
+  color: grey;
+}
+.me:hover {
+  color: rgb(250, 90, 95);
+}
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:active {
+  text-decoration: none;
+}
