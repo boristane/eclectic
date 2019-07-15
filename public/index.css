@@ -29,6 +29,8 @@ body {
   background: linear-gradient(to bottom right, #ff8f7a 0%, #fd4928 100%);
   background: -webkit-linear-gradient(to bottom right, #ff8f7a 0%, #fd4928 100%);
   height: 100vh;
+  opacity: 0;
+  transition: all 0.5s ease-out;
 }
 
 .intro-internal-container {
@@ -41,7 +43,7 @@ body {
 
 .intro-container button {
   font-family: "Dosis", sans-serif;
-  background-color: white; /* Green */
+  background-color: white;
   border: none;
   border-radius: 100px;
   color: black;
@@ -54,6 +56,7 @@ body {
   margin: 15px;
   transition: all 0.2s ease-in-out;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  font-weight: bold;
 }
 
 .intro-container button:hover {

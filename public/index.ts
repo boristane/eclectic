@@ -15,8 +15,8 @@ const margin: IMargin = {
   right: 10
 };
 
-var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
 function displayTopArtists(data: IArtistListDataItem[]) {
   const mapProperties: IArtistsListProps = {
@@ -78,9 +78,9 @@ function displayGenres(data) {
   const chart = new GenreChart(mapProperties);
   document.querySelector(".genres-container").innerHTML = "";
   chart.make(".genres-container");
-  // setInterval(() => {
-  //   chart.update(data);
-  // }, duration);
+  setInterval(() => {
+    chart.update(data);
+  }, duration);
 }
 
 function average(arr: number[]) {
@@ -199,6 +199,8 @@ function getTerm(index: number) {
 }
 
 async function handleClick(index: number) {
+  const loader = document.getElementById("inner-loader") as HTMLDivElement;
+  loader.style.display = "block";
   const term = getTerm(index);
   const { data } = await axios.get(`/top-artists/?token=${token}&term=${term}`);
   displayTopArtists(data.topArtists.filter(artist => artist.rank <= 10));
@@ -207,15 +209,23 @@ async function handleClick(index: number) {
   displayGenres(data.genreClusters);
   displayAgesClusters(data.tracksAgesClusters);
   populateReport(data);
+  loader.style.display = "none";
   document.querySelector("#section1").scrollIntoView({
     behavior: "smooth"
   });
 }
 let token: string;
 async function main() {
-  token = await getToken();
+  try {
+    token = await getToken();
+  } catch {
+    window.location.replace("/");
+  }
+
   const { data: user } = await axios.get(`/me/?token=${token}`);
   document.getElementById("user").textContent = user.display_name.split(" ")[0];
+  document.querySelector<HTMLDivElement>(".intro-container").style.opacity = "100";
+  document.querySelector<HTMLDivElement>(".loader").style.display = "none";
   const buttons = document.querySelectorAll(".term-buttons");
   buttons.forEach((button, index) => {
     button.addEventListener("click", async () => {
