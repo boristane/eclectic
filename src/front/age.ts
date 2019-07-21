@@ -224,9 +224,9 @@ export default class AgesChart {
       .attr("fill", "white")
       .classed("chart-title", true);
 
-    const offset = 10 * this.fontSize;
+    const offset = 6 * this.fontSize;
     const top = 3 * this.radius + offset;
-    const bottom = this.height - top + offset;
+    const bottom = this.height - top - offset / 4;
 
     this.yScale = d3
       .scaleLinear()
@@ -240,7 +240,7 @@ export default class AgesChart {
     const lineWidth = 2;
     yLabel
       .append("rect")
-      .attr("height", this.height - 2 * top + offset)
+      .attr("height", this.height - 2 * top - offset / 4)
       .attr("width", lineWidth)
       .attr("y", top)
       .style("fill", colors.white)

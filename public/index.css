@@ -51,16 +51,16 @@ body {
   padding: 5px;
   text-align: center;
   display: inline-block;
-  font-size: 1.5vh;
+  font-size: 1.8vh;
   cursor: pointer;
   margin: 15px;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   font-weight: bold;
 }
 
 .intro-container button:hover {
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 12px 40px 0 rgba(0, 0, 0, 0.19);
+  color: white;
+  background: #363163;
 }
 
 .top-artists-list-container {
