@@ -105,4 +105,8 @@ a:active {
   .mobile {
     display: block;
   }
+
+  .left {
+    padding: 10%;
+  }
 }
