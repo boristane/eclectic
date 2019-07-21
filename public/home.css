@@ -107,6 +107,12 @@ a:active {
   }
 
   .left {
-    padding: 10%;
+    padding: 20px;
+    padding-left: 70px;
+  }
+
+  #logo {
+    top: 55px;
+    left: 30px;
   }
 }
