@@ -202,7 +202,12 @@ async function handleClick(index: number) {
   const loader = document.getElementById("inner-loader") as HTMLDivElement;
   loader.style.display = "block";
   const term = getTerm(index);
-  const { data } = await axios.get(`/top-artists/?token=${token}&term=${term}`);
+  let data;
+  try {
+    data = (await axios.get(`/top-artists/?token=${token}&term=${term}`)).data;
+  } catch {
+    return window.location.replace("/");
+  }
   displayTopArtists(data.topArtists.filter(artist => artist.rank <= 10));
   displayMainstreamMeter(data.topArtists.filter(artist => artist.rank <= 20));
   displayNetwork(data.connections);
@@ -219,7 +224,7 @@ async function main() {
   try {
     token = await getToken();
   } catch {
-    window.location.replace("/");
+    return window.location.replace("/");
   }
 
   const { data: user } = await axios.get(`/me/?token=${token}`);

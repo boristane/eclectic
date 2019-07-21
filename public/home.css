@@ -9,13 +9,21 @@ body {
   grid-template-columns: 50% 50%;
 }
 
+#logo {
+  width: 30px;
+  border-radius: 50%;
+  position: absolute;
+  top: 185px;
+  left: 60px;
+}
+
 .left {
   font-family: "Dosis", sans-serif;
   font-size: 1.2em;
   height: 100vh;
   box-sizing: border-box;
-  padding: 10%;
-  padding-top: 15vh;
+  padding: 100px;
+  padding-top: 150px;
 }
 
 .right {
@@ -29,6 +37,12 @@ body {
   margin-top: 5%;
 }
 
+.info {
+  font-size: 0.8em;
+  color: grey;
+  margin-top: 10px;
+}
+
 #primaryButton {
   font-family: "Dosis", sans-serif;
   color: white;
@@ -37,6 +51,7 @@ body {
   border-radius: 100px;
   width: 238px;
   padding: 5px;
+  font-size: 0.9em;
   text-align: center;
   display: inline-block;
   cursor: pointer;
@@ -49,7 +64,7 @@ body {
 }
 
 .me {
-  color: grey;
+  color: black;
 }
 .me:hover {
   color: rgb(250, 90, 95);
