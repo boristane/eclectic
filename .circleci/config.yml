@@ -1,0 +1,78 @@
+aliases:
+  - &attach_workspace
+    attach_workspace:
+      at: .
+
+  - &persist_to_workspace
+    persist_to_workspace:
+      root: .
+      paths:
+        - .
+  - &restore_cache
+    keys:
+      - v1-dependencies-{{ checksum "package.json" }}
+      - v1-dependencies-
+
+  - &save_cache
+    paths:
+      - node_modules
+    key: v1-dependencies-{{ checksum "package.json" }}
+
+  - &filter-only-master
+    branches:
+      only:
+        - master
+
+# Build environment
+defaults: &defaults
+  working_directory:
+  docker:
+    - image: circleci/node:chakracore-10.13
+
+version: 2
+jobs:
+  "Install":
+    <<: *defaults
+    steps:
+      - checkout
+      - *attach_workspace
+      - restore_cache: *restore_cache
+      - run: npm install
+      - run: npm install npx
+      - save_cache: *save_cache
+      - *persist_to_workspace
+  "Publish Image":
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASS
+      - run: docker build -t boristane/eclectix .
+      - run: docker push boristane/eclectix
+  "Deploy to Heroku":
+    <<: *defaults
+    steps:
+      - checkout
+      - run: git push https://heroku:$HEROKU_API_KEY@git.heroku.com/eclectix.git master
+  "Publish to Heroku Registry":
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: docker login -u $HEROKU_LOGIN -p $HEROKU_API_KEY registry.heroku.com
+      - run: docker build --rm=false -t registry.heroku.com/eclectix/web .
+      - run: docker push registry.heroku.com/eclectix/web
+      - run: export WEB_DOCKER_IMAGE_ID=$(docker inspect registry.heroku.com/eclectix/web --format={{.Id}})
+      - run: curl -n -X PATCH https://api.heroku.com/apps/eclectix/formation -d '{"updates":[{"type":"web", "docker_image":"'"$WEB_DOCKER_IMAGE_ID"'"}]}' -H "Content-Type:application/json" -H "Accept:application/vnd.heroku+json; version=3.docker-releases" -H "Authorization:Bearer $HEROKU_API_KEY"
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - "Install"
+      - "Publish to Heroku Registry":
+          requires:
+            - Install
+          filters: *filter-only-master

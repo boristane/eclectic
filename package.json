@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon index.ts",
     "build": "npx parcel build ./public/*.html",
     "watch": "npx parcel watch ./public/*.html",
-    "start": "npx parcel build ./public/*.html && npx nodemon index.ts"
+    "start": "npx nodemon index.ts"
   },
   "dependencies": {
     "@types/express": "^4.17.0",
