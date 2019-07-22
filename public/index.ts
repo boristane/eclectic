@@ -205,7 +205,7 @@ async function handleClick(index: number) {
   let data;
   try {
     data = (await axios.get(`/top-artists/?token=${token}&term=${term}`)).data;
-  } catch {
+  } catch (e) {
     return window.location.replace("/");
   }
   displayTopArtists(data.topArtists.filter(artist => artist.rank <= 10));
@@ -228,7 +228,8 @@ async function main() {
   }
 
   const { data: user } = await axios.get(`/me/?token=${token}`);
-  document.getElementById("user").textContent = user.display_name.split(" ")[0];
+  const username = user.display_name ? user.display_name.split(" ")[0] : "there";
+  document.getElementById("user").textContent = username;
   document.querySelector<HTMLDivElement>(".intro-container").style.opacity = "100";
   document.querySelector<HTMLDivElement>(".loader").style.display = "none";
   const buttons = document.querySelectorAll(".term-buttons");

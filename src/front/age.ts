@@ -23,9 +23,12 @@ export default class AgesChart {
     this.data = properties.data.sort((a, b) => a.year - b.year);
     this.data.sort((a, b) => b.year - a.year);
 
-    const maxPerLine = Math.max(...this.data.map(d => d.tracks.length));
+    const maxPerRow = Math.max(...this.data.map(d => d.tracks.length));
     const maxPerCol = Math.abs(this.data[0].year - this.data[this.data.length - 1].year);
-    this.radius = Math.min(this.width, this.height) / (1.5 * Math.max(maxPerCol, maxPerLine));
+    const radiusForRows = this.height / (1.5 * maxPerRow);
+    const radiusForCols = this.width / (1.5 * maxPerCol);
+    console.log({ maxPerCol, maxPerRow, radiusForCols, radiusForRows });
+    this.radius = Math.min(radiusForRows, radiusForCols);
     this.fontSize = this.radius / 4;
   }
 

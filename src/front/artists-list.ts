@@ -25,7 +25,10 @@ export default class ArtistList {
     this.data = properties.data;
     this.chartWidth = this.width - this.margin.left - this.margin.right;
     this.chartHeight = this.height - this.margin.top - this.margin.bottom;
-    this.radius = this.chartWidth / (2 * this.data.length) - 2 * this.margin.left;
+
+    const minNumberOfItems = 10;
+    const numItems = this.data.length >= minNumberOfItems ? this.data.length : minNumberOfItems;
+    this.radius = this.chartWidth / (2 * numItems) - 2 * this.margin.left;
     this.fontSize = this.radius / 4;
   }
 
@@ -60,7 +63,11 @@ export default class ArtistList {
       .attr("height", this.height + this.margin.top + this.margin.bottom);
   }
 
-  private handleMouseOver(d: IArtistListDataItem, index: number, circles: Selection<any, any, any, any>) {
+  private handleMouseOver(
+    d: IArtistListDataItem,
+    index: number,
+    circles: Selection<any, any, any, any>
+  ) {
     const circle = circles[index];
     d3.select(circle)
       .select(".artists")
@@ -76,7 +83,11 @@ export default class ArtistList {
       .style("fill", colors.spotifyGreen);
   }
 
-  private handleMouseOut(d: IArtistListDataItem, index: number, circles: Selection<any, any, any, any>) {
+  private handleMouseOut(
+    d: IArtistListDataItem,
+    index: number,
+    circles: Selection<any, any, any, any>
+  ) {
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     if (textNode.text() === "| |") return;
@@ -94,7 +105,11 @@ export default class ArtistList {
       .style("fill", "white");
   }
 
-  private handleClick(d: IArtistListDataItem, index: number, circles: Selection<any, any, any, any>) {
+  private handleClick(
+    d: IArtistListDataItem,
+    index: number,
+    circles: Selection<any, any, any, any>
+  ) {
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
     const textValue = textNode.text();
