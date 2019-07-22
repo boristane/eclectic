@@ -87,7 +87,10 @@ export default class GenreChart {
     const xPosition = d => offsetX + Math.random() * (this.width - 2 * offsetX);
     const yPosition = d => offsetY + Math.random() * (this.height - 2 * offsetY);
     const textValue = d => d.genre;
-    const fontSize = d => Math.floor((d.count * this.height) / 8 / maxCount);
+    const fontSize = d => {
+      const minValue = this.height / 64;
+      return Math.floor((d.count * this.height) / 10 / maxCount) + minValue;
+    };
     const valueTexts = this.svg
       .select(".chart-group")
       .selectAll(".genres")
@@ -110,7 +113,6 @@ export default class GenreChart {
       .attr("fill", colors.lightgray)
       .attr("stroke", colors.lightgray)
       .attr("stroke-width", 2)
-      .style("font-weight", "bold")
       .style("cursor", "pointer")
       .classed("genres", true)
       .on("mouseout", this.handleMouseOut.bind(this))

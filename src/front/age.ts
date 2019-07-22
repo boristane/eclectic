@@ -25,9 +25,8 @@ export default class AgesChart {
 
     const maxPerRow = Math.max(...this.data.map(d => d.tracks.length));
     const maxPerCol = Math.abs(this.data[0].year - this.data[this.data.length - 1].year);
-    const radiusForRows = this.height / (1.5 * maxPerRow);
+    const radiusForRows = this.height / (2 * maxPerRow);
     const radiusForCols = this.width / (1.5 * maxPerCol);
-    console.log({ maxPerCol, maxPerRow, radiusForCols, radiusForRows });
     this.radius = Math.min(radiusForRows, radiusForCols);
     this.fontSize = this.radius / 4;
   }
@@ -181,7 +180,7 @@ export default class AgesChart {
       .attr("cy", yPos)
       .style("fill", img_url)
       .style("stroke", "white")
-      .style("stroke-width", this.fontSize / 4)
+      .style("stroke-width", this.fontSize / 2)
       .classed("artists", true);
 
     circlesGroup.append("title").text(d => `${d.track.album.release_date}\n${d.track.name}`);
@@ -207,7 +206,7 @@ export default class AgesChart {
       .style("text-anchor", "middle")
       .style("dominant-baseline", "central")
       .style("font-size", () => `${2 * this.fontSize}px`)
-      .style("opacity", 0.5)
+      .style("opacity", 1)
       .style("cursor", "pointer")
       .attr("fill", "white")
       .style("font-weight", "bold")
@@ -219,7 +218,7 @@ export default class AgesChart {
     titleLabel
       .append("text")
       .attr("x", 20)
-      .attr("y", 60)
+      .attr("y", 45)
       .text("Your Top 50 Songs Release Timeline")
       .style("text-anchor", "start")
       .style("dominant-baseline", "central")

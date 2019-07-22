@@ -81,7 +81,8 @@ export default class MainstreamMeter {
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
-      .style("fill", colors.spotifyGreen);
+      .style("fill", colors.spotifyGreen)
+      .style("opacity", 1);
   }
 
   private handleMouseOut(
@@ -91,6 +92,12 @@ export default class MainstreamMeter {
   ) {
     const circle = circles[index];
     const textNode = d3.select(circle).select(".play-button");
+    d3.select(circle)
+      .select(".play-button")
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(500)
+      .style("opacity", 0.5);
     if (textNode.text() === "| |") return;
     d3.select(circle)
       .select(".artists")
@@ -103,7 +110,8 @@ export default class MainstreamMeter {
       .transition()
       .ease(d3.easeLinear)
       .duration(500)
-      .style("fill", "white");
+      .style("fill", "white")
+      .style("opacity", 0.5);
   }
 
   private handleClick(
