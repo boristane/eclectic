@@ -198,9 +198,72 @@ function getTerm(index: number) {
   if (index === 2) return "short_term";
 }
 
+function randomiseStringInDOMElt(elt) {
+  const chars = ["$", "%", "#", "@", "&", "(", ")", ",", "=", "*", "/"];
+  const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const letters = elt.textContent.split("");
+  let displayString = "";
+
+  // Randomising times in milliseconds
+  const randomisingTime = 40;
+  const randomisingTime2 = 60;
+  const randomisingTime3 = 30;
+
+  letters.forEach((char, index) => {
+    const delay1 = index * randomisingTime;
+    setTimeout(() => {
+      displayString += Math.random() < 0.5 ? chars[getRandomInt(0, chars.length - 1)] : char;
+      elt.textContent = displayString;
+    }, delay1);
+
+    const delay2 = letters.length * randomisingTime + index * randomisingTime2;
+    setTimeout(() => {
+      const arr = displayString.split("");
+      arr[index] = char;
+      elt.textContent = arr.join("");
+    }, delay2);
+
+    const delay3 =
+      letters.length * randomisingTime +
+      letters.length * randomisingTime2 +
+      index * randomisingTime3;
+    setTimeout(() => {
+      const arr = displayString.split("");
+      arr[index] = char;
+      displayString = arr.join("");
+      elt.textContent = displayString;
+    }, delay3);
+  });
+}
+
+function displayLoadingText() {
+  const texts = ["Hold tight !", "Your music...", "Your taste...", "From Spotify !"];
+  const container = document.getElementById("loading-text");
+  container.style.opacity = "1";
+  let count = 0;
+  container.textContent = texts[count];
+  randomiseStringInDOMElt(container);
+  count += 1;
+  const interval = setInterval(() => {
+    container.textContent = texts[count];
+    randomiseStringInDOMElt(container);
+
+    count += 1;
+    if (count >= texts.length) count = 0;
+  }, 3000);
+  return interval;
+}
+
+function hideLoadingTexts(interval) {
+  clearInterval(interval);
+  const container = document.getElementById("loading-text");
+  container.style.opacity = "0";
+}
+let inter;
 async function handleClick(index: number) {
   const loader = document.getElementById("inner-loader") as HTMLDivElement;
   loader.style.display = "block";
+  inter = displayLoadingText();
   const term = getTerm(index);
   let data;
   try {
@@ -220,6 +283,7 @@ async function handleClick(index: number) {
   });
 }
 let token: string;
+let user;
 async function main() {
   try {
     token = await getToken();
@@ -227,7 +291,11 @@ async function main() {
     return window.location.replace("/");
   }
 
-  const { data: user } = await axios.get(`/me/?token=${token}`);
+  try {
+    user = (await axios.get(`/me/?token=${token}`)).data;
+  } catch {
+    return window.location.replace("/");
+  }
   const username = user.display_name ? user.display_name.split(" ")[0] : "there";
   document.getElementById("user").textContent = username;
   document.querySelector<HTMLDivElement>(".intro-container").style.opacity = "100";
@@ -239,6 +307,7 @@ async function main() {
       document
         .querySelectorAll<HTMLDivElement>(".scroll")
         .forEach(scroller => (scroller.style.display = "block"));
+      hideLoadingTexts(inter);
       document.querySelector<HTMLDivElement>(".report-container").style.display = "flex";
     });
   });

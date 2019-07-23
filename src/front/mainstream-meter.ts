@@ -26,7 +26,7 @@ export default class MainstreamMeter {
     this.chartWidth = this.width - this.margin.left - this.margin.right;
     this.chartHeight = this.height - this.margin.top - this.margin.bottom;
 
-    const minNumberOfItems = 10;
+    const minNumberOfItems = 20;
     const numItems = this.data.length >= minNumberOfItems ? this.data.length : minNumberOfItems;
     this.radius = this.chartWidth / (2 * numItems) - this.margin.left;
     this.fontSize = this.radius / 4;

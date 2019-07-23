@@ -298,3 +298,12 @@ section a span::before {
 .scroll {
   display: none;
 }
+
+#loading-text {
+  transition: all 0.5s ease-out;
+  opacity: 0;
+  font-size: 1.5em;
+  text-align: center;
+  margin: 20px;
+  color: white;
+}

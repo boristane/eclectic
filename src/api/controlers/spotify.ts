@@ -5,9 +5,11 @@ import axios from "axios";
 import { generateRandomString } from "../utils";
 import qs from "qs";
 import { saveToDB, getScorePercentage } from "./users";
+import { promisify } from "util";
 
 require("dotenv").config();
 
+const sleep = promisify(setTimeout);
 const axiosInstance = axios.create({ baseURL: "https://api.spotify.com/v1" });
 
 const clientId = process.env["SPOTIFY_CLIENT_ID"];
@@ -45,6 +47,7 @@ export async function getToken(req: Request, res: Response) {
   const storedState = req.cookies ? req.cookies[stateKey] : undefined;
 
   if (state === undefined || state !== storedState) {
+    console.log({ error: "state_mismatch" });
     return res.status(500).json({ error: "state_mismatch" });
   }
 
@@ -70,6 +73,7 @@ export async function getToken(req: Request, res: Response) {
     );
     res.status(200).json(response.data);
   } catch {
+    console.log({ error: "invalid_token" });
     res.status(500).json({ error: "invalid_token" });
   }
 }
@@ -96,6 +100,7 @@ export async function refreshToken(req: Request, res: Response) {
     );
     res.status(200).json(response.data);
   } catch {
+    console.log({ error: "invalid_token" });
     res.status(500).json({ error: "invalid_token" });
   }
 }
@@ -103,6 +108,7 @@ export async function refreshToken(req: Request, res: Response) {
 export async function doIt(req: Request, res: Response) {
   const { token, term } = req.query;
   try {
+    await sleep(2000);
     const user = await getUserProfile(token);
     const country = user.country;
     const topArtists: IArtistListDataItem[] = await getTopArtists(token, country, term);
@@ -128,6 +134,7 @@ export async function doIt(req: Request, res: Response) {
       eclectixPercentage
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
   }
 }
@@ -137,6 +144,7 @@ async function getTopArtists(
   country: string,
   term: string
 ): Promise<IArtistListDataItem[]> {
+  await sleep(500);
   const response = await axiosInstance.get(`/me/top/artists/?time_range=${term}&limit=50`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -166,6 +174,7 @@ async function getArtistTopTracks(
   artistID: string,
   country: string
 ): Promise<{ tracks: ISpotifyTrack[] }> {
+  await sleep(100);
   const response = await axiosInstance.get(`/artists/${artistID}/top-tracks?country=${country}`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -187,6 +196,7 @@ async function getConnections(
   token: string,
   artist: IArtistListDataItem
 ): Promise<{ artist: IArtistListDataItem; connections: ISpotifyArtist[] }> {
+  await sleep(100);
   const response = await axiosInstance.get(`/artists/${artist.id}/related-artists`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -281,6 +291,7 @@ function getExplicit(tracks: any[]): { explicit: number; total: number } {
 }
 
 async function getUserProfile(token: string): Promise<ISpotifyUser> {
+  await sleep(1000);
   const response = await axiosInstance.get(`/me`, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -293,9 +304,9 @@ export async function getUser(req: Request, res: Response) {
   const { token } = req.query;
   try {
     const user = await getUserProfile(token);
-
     res.status(200).json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
   }
 }
