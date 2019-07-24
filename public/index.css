@@ -25,7 +25,8 @@ body {
 }
 
 .intro-container {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
   background: linear-gradient(to bottom right, #ff8f7a 0%, #fd4928 100%);
   background: -webkit-linear-gradient(to bottom right, #ff8f7a 0%, #fd4928 100%);
   height: 100vh;
@@ -64,40 +65,46 @@ body {
 }
 
 .top-artists-list-container {
+  min-width: 100%;
+  width: fit-content;
   background-image: linear-gradient(to bottom right, #363163 0%, #fdcb28 100%);
-  width: 100%;
   text-align: center;
 }
 
 .mainstream-meter-container {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
   background: linear-gradient(to top right, #363163 0%, #fdcb28 100%);
   text-align: center;
 }
 
 .network-container {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
   background: linear-gradient(to bottom right, #66d68c 0%, #1db91d 100%);
   background: -webkit-linear-gradient(to bottom right, #66d68c 0%, #1db91d 100%);
   text-align: center;
 }
 
 .genres-container {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
   background: linear-gradient(to bottom right, #be3c77 0%, #176cda);
   background: -webkit-linear-gradient(to bottom right, #be3c77 0%, #176cda);
   text-align: center;
 }
 
 .ages-container {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
   background: linear-gradient(to bottom left, #50dd90 0%, #1d9ab9 100%);
   background: -webkit-linear-gradient(to bottom right, #6f50dd 0%, #1d9ab9 100%);
   text-align: center;
 }
 
 .report-container {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
   background: linear-gradient(to bottom left, #fdba28 0%, #fa6b52 100%);
   background: -webkit-linear-gradient(to bottom right, #fdba28 0%, #fa6b52 100%);
   height: 100vh;
