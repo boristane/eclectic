@@ -166,10 +166,12 @@ function populateReport(data) {
   document.getElementById("average-connections").textContent = String(meanConnections);
   const numGenres = data.genreClusters.length;
   document.getElementById("favourite-genre").textContent = data.genreClusters[numGenres - 1].genre;
-  document.getElementById("second-favourite-genre").textContent =
-    data.genreClusters[numGenres - 2].genre;
-  document.getElementById("third-favourite-genre").textContent =
-    data.genreClusters[numGenres - 3].genre;
+  document.getElementById("second-favourite-genre").textContent = data.genreClusters[numGenres - 2]
+    ? data.genreClusters[numGenres - 2].genre
+    : "undefined";
+  document.getElementById("third-favourite-genre").textContent = data.genreClusters[numGenres - 3]
+    ? data.genreClusters[numGenres - 3].genre
+    : "undefined";
   document.getElementById("total-number-genres").textContent = numGenres;
 
   const tracks = getTracksWithDate(data.tracksAgesClusters);
