@@ -1,4 +1,10 @@
-import { IArtistListDataItem, ISpotifyArtist, ISpotifyTrack, ISpotifyUser } from "../../types";
+import {
+  IArtistListDataItem,
+  ISpotifyArtist,
+  ISpotifyTrack,
+  ISpotifyUser,
+  INode
+} from "../../types";
 import { Request, Response } from "express";
 
 import axios from "axios";
@@ -151,21 +157,25 @@ async function getTopArtists(
     }
   });
   const artists: ISpotifyArtist[] = response.data.items;
-  const artistsTopTracks = [];
+  const artistsTopTracks: { artistID: string; track: ISpotifyTrack }[] = [];
   for (let i = 0; i < artists.length; i += 1) {
     const artistTopTracks = (await getArtistTopTracks(token, artists[i].id, country)).tracks;
     const track = artistTopTracks[Math.floor(Math.random() * artistTopTracks.length)];
     artistsTopTracks.push({ artistID: artists[i].id, track });
   }
-  const topArtists: IArtistListDataItem[] = artists.map((artist, index) => ({
-    name: artist.name,
-    rank: index + 1,
-    image: artist.images[0].url,
-    id: artist.id,
-    track: artistsTopTracks.find(a => a.artistID === artist.id).track,
-    popularity: artist.popularity,
-    genres: artist.genres
-  }));
+  const topArtists: IArtistListDataItem[] = artists.map((artist, index) => {
+    const artistsTopTrack = artistsTopTracks.find(a => a.artistID === artist.id);
+    const track = artistsTopTrack ? artistsTopTrack.track : undefined;
+    return {
+      name: artist.name,
+      rank: index + 1,
+      image: artist.images[0].url,
+      id: artist.id,
+      track,
+      popularity: artist.popularity,
+      genres: artist.genres
+    };
+  });
   return topArtists;
 }
 
@@ -209,7 +219,7 @@ async function findConnections(
   token: string,
   artists: IArtistListDataItem[]
 ): Promise<{ links: { source: string; target: string }[]; nodes: any }> {
-  const nodes = [];
+  const nodes: INode[] = [];
   const links: { source: string; target: string }[] = [];
   const artistsIDs = artists.map(artist => artist.id);
   const promises = artists.map(artist => getConnections(token, artist));
@@ -232,8 +242,9 @@ async function findConnections(
     if (commonIDs.length > 0) {
       const commonArtists = commonIDs.map(id => artists.find(artist => artist.id === id));
       commonArtists.forEach(commonArtist => {
-        links.push({ source: resolve.artist.name, target: commonArtist.name });
-        const temp = nodes.find(artist => artist.id === commonArtist.name);
+        const commonArtistName = commonArtist ? commonArtist.name : "";
+        links.push({ source: resolve.artist.name, target: commonArtistName });
+        const temp = nodes.find(artist => artist.id === commonArtistName);
         if (temp !== undefined) {
           temp.numLinks += 1;
         }

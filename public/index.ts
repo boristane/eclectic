@@ -26,7 +26,9 @@ function displayTopArtists(data: IArtistListDataItem[]) {
     data
   };
   const chart = new ArtistList(mapProperties);
-  document.querySelector(".top-artists-list-container").innerHTML = "";
+  const container = document.querySelector(".top-artists-list-container");
+  if (!container) return;
+  container.innerHTML = "";
   chart.make(".top-artists-list-container");
 }
 
@@ -38,7 +40,9 @@ function displayMainstreamMeter(data: IArtistListDataItem[]) {
     data
   };
   const chart = new MainstreamMeter(mapProperties);
-  document.querySelector(".mainstream-meter-container").innerHTML = "";
+  const container = document.querySelector(".mainstream-meter-container");
+  if (!container) return;
+  container.innerHTML = "";
   chart.make(".mainstream-meter-container");
 }
 
@@ -50,7 +54,9 @@ function displayNetwork(data) {
     data
   };
   const chart = new Network(mapProperties);
-  document.querySelector(".network-container").innerHTML = "";
+  const container = document.querySelector(".network-container");
+  if (!container) return;
+  container.innerHTML = "";
   chart.make(".network-container");
 }
 
@@ -62,7 +68,9 @@ function displayAgesClusters(data) {
     data
   };
   const chart = new AgesChart(mapProperties);
-  document.querySelector(".ages-container").innerHTML = "";
+  const container = document.querySelector(".ages-container");
+  if (!container) return;
+  container.innerHTML = "";
   chart.make(".ages-container");
 }
 
@@ -76,11 +84,13 @@ function displayGenres(data) {
     duration
   };
   const chart = new GenreChart(mapProperties);
-  document.querySelector(".genres-container").innerHTML = "";
+  const container = document.querySelector(".genres-container");
+  if (!container) return;
+  container.innerHTML = "";
   chart.make(".genres-container");
-  setInterval(() => {
-    chart.update(data);
-  }, duration);
+  // setInterval(() => {
+  //   chart.update(data);
+  // }, duration);
 }
 
 function average(arr: number[]) {

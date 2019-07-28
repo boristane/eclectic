@@ -124,3 +124,13 @@ export interface IArtistListDataItem {
   popularity: number;
   genres: string[];
 }
+
+export interface INode {
+  id: string;
+  image: string;
+  i: string;
+  group: string;
+  track: any;
+  rank: number;
+  numLinks: number;
+}
