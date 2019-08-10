@@ -31,7 +31,7 @@ export default class AgesChart {
     const radiusForCols = this.height / (3 * maxPerCol);
     this.radius = Math.min(radiusForRows, radiusForCols);
     if (radiusForCols < radiusForRows) {
-      const minRadius = 24;
+      const minRadius = radiusForRows < 24 ? radiusForRows : 24;
       this.radius = this.radius < minRadius ? minRadius : this.radius;
       this.height = 3 * maxPerCol * this.radius;
     }

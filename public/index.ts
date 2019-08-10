@@ -88,9 +88,9 @@ function displayGenres(data) {
   if (!container) return;
   container.innerHTML = "";
   chart.make(".genres-container");
-  // setInterval(() => {
-  //   chart.update(data);
-  // }, duration);
+  setInterval(() => {
+    chart.update(data);
+  }, duration);
 }
 
 function average(arr: number[]) {
