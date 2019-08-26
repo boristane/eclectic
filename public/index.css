@@ -269,6 +269,28 @@ section a span::before {
   animation: sdb10 2s infinite;
   box-sizing: border-box;
 }
+
+#instructions {
+  display: grid;
+  grid-template-columns: 20% 70%;
+  width: 500px;
+  height: 100px;
+  background: rgba(255, 255, 255);
+  color: black;
+  margin: auto;
+  margin-top: 200px;
+  font-size: 1.2em;
+  border-radius: 50px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  -moz-transition: opacity 0.5s ease-in-out;
+  -webkit-transition: opacity 0.5s ease-in-out;
+}
+
+#instructions div {
+  margin: auto;
+}
+
 @-webkit-keyframes sdb10 {
   0% {
     -webkit-transform: translate(0, 0);

@@ -284,6 +284,7 @@ function hideLoadingTexts(interval) {
 let inter;
 async function handleClick(index: number) {
   const loader = document.getElementById("inner-loader") as HTMLDivElement;
+  const instructions = document.getElementById("instructions") as HTMLDivElement;
   loader.style.display = "block";
   inter = displayLoadingText();
   const term = getTerm(index);
@@ -300,9 +301,13 @@ async function handleClick(index: number) {
   displayAgesClusters(data.tracksAgesClusters);
   populateReport(data);
   loader.style.display = "none";
-  document.querySelector("#section1").scrollIntoView({
-    behavior: "smooth"
-  });
+  instructions.style.opacity = "100";
+  setTimeout(() => {
+    instructions.style.opacity = "0";
+    document.querySelector("#section1").scrollIntoView({
+      behavior: "smooth"
+    });
+  }, 4000);
 }
 let token: string;
 let user;
