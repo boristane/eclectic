@@ -5,6 +5,7 @@ import colors from "./colors";
 let isPlaying: boolean;
 const audioElt = document.getElementById("player") as HTMLAudioElement;
 const visualPlayer = document.getElementById("visual-player") as HTMLDivElement;
+let animationRequestId = 0;
 
 export function playOrPause(track, isPause: boolean) {
   d3.selectAll(".play-button").text("▶");
@@ -17,7 +18,7 @@ export function playOrPause(track, isPause: boolean) {
   if (!track.preview_url) {
     audioElt.pause();
     isPlaying = false;
-    animate();
+    animationRequestId = animate();
     return updateVisualPlayerWithUnavailable();
   }
   audioElt.src = audioElt.src === track.preview_url ? audioElt.src : track.preview_url;
@@ -28,7 +29,7 @@ export function playOrPause(track, isPause: boolean) {
     audioElt.play();
     isPlaying = true;
   }
-  animate();
+  animationRequestId = animate();
   updateVisualPlayer(track);
 }
 
@@ -39,7 +40,10 @@ function animate() {
   const interval = 1000 / fps;
   let delta;
   function renderFrame() {
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      return;
+    }
+    window.cancelAnimationFrame(animationRequestId);
     const anim = requestAnimationFrame(renderFrame);
     now = Date.now();
     delta = now - then;
@@ -97,5 +101,5 @@ visualPlayer.addEventListener("click", e => {
     audioElt.play();
   }
   isPlaying = !isPlaying;
-  animate();
+  animationRequestId = animate();
 });
