@@ -134,3 +134,16 @@ export interface INode {
   rank: number;
   numLinks: number;
 }
+
+export interface IServerResponse {
+  genreClusters: { genre: string; count: number; artists: IArtistListDataItem[] }[];
+  topArtists: IArtistListDataItem[];
+  connections: { links: { source: string; target: string }[]; nodes: any };
+  topTracks: ISpotifyTrack[];
+  explicit: { explicit: number; total: number };
+  user: ISpotifyUser;
+  tracksAgesClusters: { year: number; tracks: ISpotifyTrack[] }[];
+  period: string;
+  score: number;
+  eclectixPercentage: number;
+}

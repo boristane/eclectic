@@ -42,7 +42,7 @@ body {
   padding-top: 25vh;
 }
 
-.intro-container button {
+.styled-buttons {
   font-family: "Dosis", sans-serif;
   background-color: white;
   border: none;
@@ -59,7 +59,7 @@ body {
   font-weight: bold;
 }
 
-.intro-container button:hover {
+.styled-buttons:hover {
   color: white;
   background: #363163;
 }

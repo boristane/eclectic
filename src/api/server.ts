@@ -1,13 +1,18 @@
-import { doIt, getToken, login, refreshToken, getUser } from "./controlers/spotify";
+import {
+  doIt,
+  getToken,
+  login,
+  refreshToken,
+  getUser,
+  generatePlaylist
+} from "./controlers/spotify";
 
 import cookieParser from "cookie-parser";
 import express, { Response, Request } from "express";
 import path from "path";
 import mongoose from "mongoose";
 
-const mongoDBURI = `mongodb+srv://eclectic:${
-  process.env.MONGO_ATLAS_PASSWORD
-}@eclecticdata-zt9sk.mongodb.net/${process.env.MONGO_ATLAS_DATABASE}?retryWrites=true&w=majority`;
+const mongoDBURI = `mongodb+srv://eclectic:${process.env.MONGO_ATLAS_PASSWORD}@eclecticdata-zt9sk.mongodb.net/${process.env.MONGO_ATLAS_DATABASE}?retryWrites=true&w=majority`;
 mongoose.connect(mongoDBURI, { useNewUrlParser: true });
 
 const app = express()
@@ -36,5 +41,6 @@ app.get("/me", getUser);
 app.get("/you", (req: Request, res: Response) => {
   res.status(200).sendFile(path.join(__dirname + "/../../dist/me.html"));
 });
+app.post("/generate-playlist", generatePlaylist);
 
 export default app;

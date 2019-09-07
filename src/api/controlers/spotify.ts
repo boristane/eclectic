@@ -3,7 +3,8 @@ import {
   ISpotifyArtist,
   ISpotifyTrack,
   ISpotifyUser,
-  INode
+  INode,
+  IServerResponse
 } from "../../types";
 import { Request, Response } from "express";
 
@@ -34,7 +35,7 @@ function getPeriod(term) {
 export function login(req: Request, res: Response) {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
-  var scope = "user-read-private user-read-email user-top-read";
+  var scope = "user-read-private user-read-email user-top-read playlist-modify-public";
   res.redirect(
     "https://accounts.spotify.com/authorize?" +
       qs.stringify({
@@ -127,7 +128,7 @@ export async function doIt(req: Request, res: Response) {
     saveToDB(user.product, user.birthdate, user.country, user.followers.total, score, term);
     const eclectixPercentage = await getScorePercentage(score);
 
-    res.status(200).json({
+    const response: IServerResponse = {
       genreClusters,
       topArtists,
       connections,
@@ -138,7 +139,8 @@ export async function doIt(req: Request, res: Response) {
       period: getPeriod(term),
       score,
       eclectixPercentage
-    });
+    };
+    res.status(200).json(response);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Unexpected error.", err: err.stack });
@@ -215,6 +217,39 @@ async function getConnections(
   return { artist, connections: response.data.artists };
 }
 
+async function createPlaylist(token: string, userId: string): Promise<string> {
+  const response = await axiosInstance.post(
+    `/users/${userId}/playlists`,
+    {
+      name: "eclectix",
+      public: true,
+      description: `Your music taste, your favourite songs, created on ${new Date().toDateString()}`
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+  return response.data.id;
+}
+
+async function addTracksToPlaylist(token: string, playlistId: string, trackUris: string[]) {
+  await sleep(100);
+  const response = await axiosInstance.post(
+    `/playlists/${playlistId}/tracks`,
+    {
+      uris: trackUris
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+  return response.data.snapshot_id;
+}
+
 async function findConnections(
   token: string,
   artists: IArtistListDataItem[]
@@ -278,7 +313,7 @@ function clusterGenres(
   return cluster;
 }
 
-function clusterTracksAges(tracks: ISpotifyTrack[]) {
+function clusterTracksAges(tracks: ISpotifyTrack[]): { year: number; tracks: ISpotifyTrack[] }[] {
   const result: { year: number; tracks: ISpotifyTrack[] }[] = [];
   tracks.forEach(track => {
     const year = Number(track.album.release_date.split("-")[0]);
@@ -316,6 +351,19 @@ export async function getUser(req: Request, res: Response) {
   try {
     const user = await getUserProfile(token);
     res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Unexpected error.", err: err.stack });
+  }
+}
+
+export async function generatePlaylist(req: Request, res: Response) {
+  const { uris, userId } = req.body;
+  const { token } = req.query;
+  try {
+    const playlistId = await createPlaylist(token, userId);
+    const playlistSnapshot = await addTracksToPlaylist(token, playlistId, uris);
+    res.status(200).json({ playlistId, playlistSnapshot });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Unexpected error.", err: err.stack });

@@ -1,7 +1,13 @@
 import axios from "axios";
 import "babel-polyfill";
 import ArtistList from "../src/front/artists-list";
-import { IMargin, IArtistListDataItem, IArtistsListProps, ISpotifyTrack } from "../src/types";
+import {
+  IMargin,
+  IArtistListDataItem,
+  IArtistsListProps,
+  ISpotifyTrack,
+  IServerResponse
+} from "../src/types";
 import MainstreamMeter from "../src/front/mainstream-meter";
 import Network from "../src/front/network";
 import GenreChart from "../src/front/genres";
@@ -150,7 +156,12 @@ function populateReport(data) {
   document.getElementById("period").textContent = data.period;
   document.getElementById("name").textContent = data.user.display_name.split(" ")[0];
   document.getElementById("eclectix-score").textContent = data.score.toFixed(1);
-  document.getElementById("eclectix-percentage").textContent = data.eclectixPercentage.toFixed(0);
+  const isBottomPercentage = data.eclectixPercentage >= 50;
+  const displayPercentage = isBottomPercentage
+    ? 100 - data.eclectixPercentage
+    : data.eclectixPercentage;
+  document.getElementById("eclectix-top").textContent = isBottomPercentage ? "bottom" : "top";
+  document.getElementById("eclectix-percentage").textContent = displayPercentage.toFixed(0);
 
   const meanPopularity = average(data.topArtists.map(artist => artist.popularity)).toFixed(0);
   const category = getCategory(meanPopularity);
@@ -288,7 +299,7 @@ async function handleClick(index: number) {
   loader.style.display = "block";
   inter = displayLoadingText();
   const term = getTerm(index);
-  let data;
+  let data: IServerResponse;
   try {
     data = (await axios.get(`/top-artists/?token=${token}&term=${term}`)).data;
   } catch (e) {
@@ -308,6 +319,22 @@ async function handleClick(index: number) {
       behavior: "smooth"
     });
   }, 4000);
+
+  const generatePlaylistButton = document.getElementById("generate-playlist");
+  generatePlaylistButton.addEventListener("click", async () => {
+    try {
+      document.getElementById("generate-playlist-loader").style.display = "inline-block";
+      const playlistData = (await axios.post(`/generate-playlist/?token=${token}`, {
+        uris: data.topTracks.map(track => track.uri),
+        userId: data.user.id
+      })).data;
+      document.getElementById("generate-playlist-loader").style.display = "none";
+      alert("The playlist was succesfully generated ! Check your spotify account :)");
+    } catch (err) {
+      document.getElementById("generate-playlist-loader").style.display = "none";
+      alert("There was an error generating the playlist, please try again.");
+    }
+  });
 }
 let token: string;
 let user;
