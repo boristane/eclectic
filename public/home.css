@@ -104,6 +104,16 @@ a:active {
 
   .mobile {
     display: block;
+    margin-top: 50px;
+  }
+
+  .mobile-input {
+    border: 1px solid #fa6b52;
+    border-radius: 2px;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 300px;
+    padding: 10px;
   }
 
   .left {
