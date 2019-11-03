@@ -45,6 +45,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - setup_remote_docker
       - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASS
       - run: docker build -t boristane/eclectix .
       - run: docker push boristane/eclectix
@@ -57,6 +58,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - setup_remote_docker
       - run: docker login -u $HEROKU_LOGIN -p $HEROKU_API_KEY registry.heroku.com
       - run: docker build --rm=false -t registry.heroku.com/eclectix/web .
       - run: docker push registry.heroku.com/eclectix/web
