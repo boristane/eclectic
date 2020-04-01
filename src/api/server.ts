@@ -5,7 +5,7 @@ import {
   refreshToken,
   getUser,
   generatePlaylist
-} from "./controlers/spotify";
+} from "./controllers/spotify";
 
 import cookieParser from "cookie-parser";
 import express, { Response, Request } from "express";
