@@ -9,13 +9,15 @@ export function getScore(connections, genreClusters, tracksAgesClusters, topArti
   const numGenresWithCountOne = genreClusters.filter(genre => genre.count === 1).length;
   const maxNumSongsPerYear = Math.max(...tracksAgesClusters.map(cluster => cluster.tracks.length));
   const meanPopularity = average(topArtists.map(artist => artist.popularity));
+  const denominator = maxNumSongsPerYear + meanPopularity + meanConnections;
+  if (denominator === 0) return 0;
   const score =
-    (100 * (numLoneNodes + numGenres + numGenresWithCountOne)) /
-    (maxNumSongsPerYear + meanPopularity + meanConnections);
+    (100 * (numLoneNodes + numGenres + numGenresWithCountOne)) / denominator;
   return score;
 }
 
 function average(arr: number[]) {
+  if (arr.length === 0) return 0;
   return arr.reduce((p, c) => p + c, 0) / arr.length;
 }
 

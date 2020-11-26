@@ -109,8 +109,11 @@ export async function doIt(req: Request, res: Response) {
     const topTracks = (await getTopTracks(token, term)).items;
     const explicit = getExplicit(topTracks);
     const tracksAgesClusters = clusterTracksAges(topTracks);
-    const score = getScore(connections, genreClusters, tracksAgesClusters, topArtists);
-    saveToDB(user.product, user.birthdate, user.country, user.followers.total, score, term);
+    let score = getScore(connections, genreClusters, tracksAgesClusters, topArtists);
+    if (isNaN(score)) {
+      score = 0;
+    }
+    await saveToDB(user.product, user.birthdate, user.country, user.followers.total, score, term);
     const eclectixPercentage = await getScorePercentage(score);
 
     const response: IServerResponse = {
